@@ -1,5 +1,6 @@
 #include "token.h"
 #include "redirect.h"
+#include "parser.h"
 
 /* Token map is used to map patterns to functions
  * token    token_l    proccess */

@@ -1,10 +1,13 @@
 #include <sys/types.h>
 
+#ifndef JOB_H
+#define JOB_H
+
 #include "command.h"
 
-typedef enum {
-    job_foreground, job_background
-} job_status_t;
+#define job_foreground 0
+#define job_background 0
+typedef unsigned int job_status_t;
 
 /* The jid will be used to identify jobs from the shell */
 typedef struct {
@@ -18,3 +21,5 @@ typedef struct {
 
 job_t *job_new(char **cmd, uint32_t cmd_l);
 void job_background_lhs(job_t *lhs, char *raw_input, uint32_t pos);
+
+#endif

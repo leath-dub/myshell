@@ -1,21 +1,13 @@
 #include "token.h"
 #include "redirect.h"
 
-/* Token map is used to map patterns to functions */
-/*
+/* Token map is used to map patterns to functions
+ * token    token_l    proccess */
 static const tok_map_t tokens[] = {
     {">", 1, redirect_stdout},
     {"<", 1, redirect_stdin},
     {">>", 2, redirect_stdin_append},
     {"&", 1, job_background_lhs},
-    0,
-};
-*/
-static const tok_map_t tokens[] = {
-    {">", 1, 0},
-    {"<", 1, 0},
-    {">>", 2, 0},
-    {"&", 1, 0},
     0,
 };
 
@@ -38,6 +30,7 @@ parser_parse_line(char *raw_input, int length)
     }
 }
 
+/*
 int
 main(int argc, char **argv)
 {
@@ -46,3 +39,4 @@ main(int argc, char **argv)
     parser_parse_line(line, length);
     return 0;
 }
+*/

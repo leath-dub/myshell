@@ -4,9 +4,9 @@
 include config.mk
 
 bin = myshell
-src = src/main.c src/job.c
-obj = main.o job.o
-headers = src/job.h
+src = src/main.c src/job.c src/parser.c src/token.c src/redirect.c
+obj = main.o job.o parser.o token.o redirect.o
+headers = src/job.h src/parser.h src/redirect.h src/token.h src/command.h
 
 cflags = $(INCS) -Wall -pedantic -std=c99
 ldflags =

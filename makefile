@@ -3,6 +3,7 @@
 
 include config.mk
 
+bin = myshell
 src = src/main.c
 obj = $(src:.c=.o)
 headers =
@@ -17,12 +18,19 @@ defines = -Ddebug
 debugflag = -g$(debug)
 endif
 
-all: myshell
+all: $(bin)
 
-*.o:
-	$(CC) $(debugflag) -c $@ $(cflags) $(defines) $(optimize)
+src/%.o:
+	$(CC) -o $@ $(debugflag) -c $(src) $(cflags) $(defines) $(optimize)
 
-myshell: $(obj)
+$(bin): $(obj)
 	$(CC) $(debugflag) -o $@ $^ $(ldflags) $(cflags) $(optimize)
 
-.PHONY: all myshell
+clean:
+	rm -f $(bin)
+	rm -f $(obj)
+
+watch:
+	echo $(src) $(headers) | tr ' ' '\n' | entr make clean all CC=gcc
+
+.PHONY: all myshell clean watch

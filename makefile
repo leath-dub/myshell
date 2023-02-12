@@ -4,9 +4,9 @@
 include config.mk
 
 bin = myshell
-src = src/main.c
-obj = $(src:.c=.o)
-headers =
+src = src/main.c src/job.c
+obj = main.o job.o
+headers = src/job.h
 
 cflags = $(INCS) -Wall -pedantic -std=c99
 ldflags =
@@ -20,8 +20,8 @@ endif
 
 all: $(bin)
 
-src/%.o:
-	$(CC) -o $@ $(debugflag) -c $(src) $(cflags) $(defines) $(optimize)
+%.o:
+	$(CC) $(debugflag) -c $(src) $(cflags) $(defines) $(optimize)
 
 $(bin): $(obj)
 	$(CC) $(debugflag) -o $@ $^ $(ldflags) $(cflags) $(optimize)

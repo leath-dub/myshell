@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "token.h"
 #include "redirect.h"
 #include "parser.h"
@@ -5,14 +9,13 @@
 /* Token map is used to map patterns to functions
  * token    token_l    proccess */
 static const tok_map_t tokens[] = {
-    {">", 1, redirect_stdout},
-    {"<", 1, redirect_stdin},
-    {">>", 2, redirect_stdin_append},
-    {"&", 1, job_background_lhs},
+    {">", 1, NULL}, // TODO actuall link them to functions
+    {"<", 1, NULL},
+    {">>", 2, NULL},
+    {"&", 1, NULL},
     0,
 };
 
-static job_t *lhs = 0;
 void
 parser_parse_line(char *raw_input, int length)
 {
@@ -31,13 +34,37 @@ parser_parse_line(char *raw_input, int length)
     }
 }
 
-/*
-int
-main(int argc, char **argv)
+char **
+parseargs(char *start, char *end)
 {
-    char *line = "echo 'hello'&<inputfile>>outputfile";
-    int length = 37;
-    parser_parse_line(line, length);
-    return 0;
+    if (start == end) {
+        return NULL;
+    }
+
+    /* We need to allocate
+     * char ** (arg vector to return) (args * sizeof (char))
+     * char * (slice) (start - end)
+     */
+
+    char *copy = calloc(end - start, 1);
+    char *saveptr;
+
+    memmove(copy, start, end - start);
+
+    /* now we can use strtok_r to tokenize on IFS */
+    /* char *strtok_r(char *restrict str, const char *restrict delim,
+                      char **restrict saveptr); */
+    /* TODO: get strtok working here */
+    printf("%s\n", copy);
+    char *tok;
+    tok = strtok(copy, " ");
+    while (tok) {
+        printf("%s\n", tok);
+        tok = strtok(NULL, " ");
+        if (tok == NULL) {
+            break;
+        }
+    }
+
+    return NULL;
 }
-*/

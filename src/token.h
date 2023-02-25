@@ -1,11 +1,9 @@
-#include "job.h"
-
-typedef void (*tok_func) (job_t *lhs, char *raw_input, uint32_t pos);
+#include <unistd.h>
 
 typedef struct {
     char *token;
     size_t token_l;
-    tok_func process;
+    void *process;
 } tok_map_t;
 
 enum tok_match_t {

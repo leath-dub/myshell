@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "parser.h"
+#include "lib.h"
 
 /* Main commands
  * - getcmd: 
@@ -31,7 +32,7 @@ main(int argc, char **argv)
     char *end = line;
     while (*++end != '<');
 
-    char **command = parseargs(line, end);
 
+    char **command = parseargs(line, end);
     return 0;
 }

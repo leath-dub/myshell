@@ -24,7 +24,6 @@
         temp = realloc(                                                       \
             vector, (capacity * CAPACITY_MULTIPLIER) * sizeof(T));            \
         if (!temp) {                                                          \
-            free(vector);                                                     \
             die("Failed to realloc");                                         \
         }                                                                     \
         capacity = (capacity * CAPACITY_MULTIPLIER);                          \
@@ -50,12 +49,15 @@
 #define bin_set_flag(flags, flag) flags |= flag
 #define bin_unset_flag(flags, flag) flags &= ~flag
 #define bin_isset_flag(flags, flag) ((flags & flag) == flag)
+#define bin_toggle_flag(flags, flag) flags ^= flag
 
 #define str_length(start, end) ((size_t)(end - start) / sizeof(char) + 1)
 
 #define foreach(T, e, object, length)                                          \
   for (T *_iter = object, e = *_iter; _iter != (object + length);              \
        *_iter++, e = *_iter)
+
+#define loop for (;;)
 
 void die(char *msg);
 char *strip(char *start, char *end, const char ch);

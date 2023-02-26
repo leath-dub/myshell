@@ -46,12 +46,14 @@ int parseio(struct cmd *c, char *start, char *match, size_t match_length, char *
 int parsewrite(struct cmd *c, char *start, char *match, size_t match_length, char *end);
 int parseread(struct cmd *c, char *start, char *match, size_t match_length, char *end);
 int parseappend(struct cmd *c, char *start, char *match, size_t match_length, char *end);
+int parseback(struct cmd *c, char *start, char *match, size_t match_length, char *end);
 char *getcmd(int mode);
 struct cmd *parsecmd(char *parseme, size_t length);
 int runcmd(struct cmd *c);
 void printcmd(struct cmd *c);
 int parseexec(struct cmd *c, char *start, char *end);
 int *getcmdfd(struct cmd *c, int type);
+int cleancmd(struct cmd *c);
 
 typedef int (*tok_fn)(struct cmd *, char *, char *, size_t, char *);
 

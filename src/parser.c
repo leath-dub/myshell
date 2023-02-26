@@ -35,6 +35,26 @@ parser_parse_line(char *raw_input, int length)
     }
 }
 
+char *
+parsearg(char *start, size_t length)
+{
+    char *tmp;
+    char ch;
+    int flags = 0;
+
+    for (size_t i = 0; i < length; i += 1) {
+        ch = start[i];
+        if (ch == '\'') flags ^= STR_SINGLE_QUOTE_OPEN;
+        if (ch == '\"') flags ^= STR_DOUBLE_QUOTE_OPEN;
+        if (!flags && ch == IFS) {
+            tmp = &start[i];
+            while (*tmp == IFS) { *tmp = 0; tmp++; }
+            return tmp;
+        }
+    }
+    return &start[length - 1];
+}
+
 char **
 parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
 {
@@ -47,25 +67,24 @@ parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
      * char * (slice) (start - end)
      */
 
-    char *copy = calloc(str_length(start, end), 1);
+    char *copy = calloc(str_length(start, end) + 1, sizeof(char));
     memmove(copy, start, str_length(start, end));
 
     size_t length = 0;
-    size_t capacity = 1;
+    size_t capacity = 10;
     char **argv = calloc(capacity, sizeof(char *));
 
-    /* now we can use strtok_r to tokenize on IFS */
-    /* char *strtok_r(char *restrict str, const char *restrict delim,
-                      char **restrict saveptr); */
-    char *tok;
-    tok = strtok(copy, (char[]){IFS, 0});
-    while (tok) {
-        vec_push_back(char *, argv, capacity, length, tok);
-        tok = strtok(NULL, (char[]){IFS, 0});
-        if (tok == NULL) {
-            break;
-        }
+    char *s = copy;
+    char *copy_end = copy + (end - start + 1);
+    char *ret = s;
+    loop {
+        ret = parsearg(s, copy_end - ret + 1);
+        vec_push_back(char *, argv, capacity, length, s);
+        s = ret;
+        if (ret == copy_end) break;
     }
+    vec_push_back(char *, argv, capacity, length, 0); // null terminate
+
 
     /* make sure no NULL ptrs */
     if (_length) *_length = length;

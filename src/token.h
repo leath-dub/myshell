@@ -1,9 +1,10 @@
 #include <unistd.h>
+#include "command.h"
 
 typedef struct {
     char *token;
     size_t token_l;
-    void *process;
+    tok_fn process;
 } tok_map_t;
 
 enum tok_match_t {

@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "lib.h"
 #include "command.h"
+#include <string.h>
 
 /* Main commands
  * - getcmd: 
@@ -39,10 +40,13 @@ main(int argc, char **argv)
     char **command = parseargs(line, end, &length, &capacity);
     vec_print(char *, command, length, "%s");
     */
-    // char *line = "echo 'hello' < infile > outfile >> other";
-    char *line = "echo 'hello' >> helloworld";
+    // char line[] = "echo -n 'hello' & > outfile";
+    char line[] = "echo    'hello'     &    >    outfile";
 
-    struct cmd *c = parsecmd(line, 26);
+    struct cmd *c = parsecmd(line, strlen(line));
     printcmd(c);
+    runcmd(c);
+    cleancmd(c);
+    printf("This is after run!");
     return 0;
 }

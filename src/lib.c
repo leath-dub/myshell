@@ -21,16 +21,19 @@ strip(char *start, char *end, const char ch)
     new_start = start;
     new_end = end;
 
-    while (*new_start == ch || new_start == end) ++new_start;
-    while (*new_end == ch || new_end == start) --new_end;
+    while (*new_start == ch && new_start < end) ++new_start;
+    while (*new_end == ch && new_end > start) --new_end;
 
-    length = new_end - new_start + 1;
-    result = calloc(length, sizeof(char));
+    length = str_length(new_start, new_end);
+    result = calloc(length + 1, sizeof(char));
 
     if (!result) {
         perror("Failed call to calloc");
+        free(result);
+        return 0;
     }
     memmove(result, new_start, length);
+    result[length] = '\0';
 
     return result;
 }

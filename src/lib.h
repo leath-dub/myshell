@@ -27,11 +27,38 @@
             free(vector);                                                     \
             die("Failed to realloc");                                         \
         }                                                                     \
+        capacity = (capacity * CAPACITY_MULTIPLIER);                          \
         *((T *)vector + length) = item;                                       \
         length += 1;                                                          \
     }                                                                         \
 }
 
+/**
+ * vec_print(T, T *vector, size_t length, const char *format_str)
+ */
+#define vec_print(T, vector, length, format_str) {                            \
+    putchar('[');                                                             \
+    for (size_t i = 0; i < length; ++i) {                                     \
+        if (i != 0) {                                                         \
+            printf(", ");                                                     \
+        }                                                                     \
+        printf(format_str, *((T *)vector + i));                               \
+    }                                                                         \
+    printf("]\n");                                                            \
+}
+
+#define bin_set_flag(flags, flag) flags |= flag
+#define bin_unset_flag(flags, flag) flags &= ~flag
+#define bin_isset_flag(flags, flag) ((flags & flag) == flag)
+
+#define str_length(start, end) ((size_t)(end - start) / sizeof(char) + 1)
+
+#define foreach(T, e, object, length)                                          \
+  for (T *_iter = object, e = *_iter; _iter != (object + length);              \
+       *_iter++, e = *_iter)
+
 void die(char *msg);
+char *strip(char *start, char *end, const char ch);
+char *str_alloc(const char *s);
 
 #endif

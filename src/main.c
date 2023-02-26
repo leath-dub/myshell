@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "parser.h"
 #include "lib.h"
+#include "command.h"
 
 /* Main commands
  * - getcmd: 
@@ -27,12 +28,21 @@ main(int argc, char **argv)
     parser_parse_line(line, length);
     */
 
+    /*
+    size_t length;
+    size_t capacity;
     char *line = "echo 'hello' < infile";
-    // find the '<', this will be the end ptr
     char *end = line;
-    while (*++end != '<');
+    while (*++end);
 
 
-    char **command = parseargs(line, end);
+    char **command = parseargs(line, end, &length, &capacity);
+    vec_print(char *, command, length, "%s");
+    */
+    // char *line = "echo 'hello' < infile > outfile >> other";
+    char *line = "echo 'hello' >> helloworld";
+
+    struct cmd *c = parsecmd(line, 26);
+    printcmd(c);
     return 0;
 }

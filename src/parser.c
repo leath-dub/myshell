@@ -5,6 +5,7 @@
 #include "token.h"
 #include "redirect.h"
 #include "parser.h"
+#include "lib.h"
 
 /* Token map is used to map patterns to functions
  * token    token_l    proccess */
@@ -35,7 +36,7 @@ parser_parse_line(char *raw_input, int length)
 }
 
 char **
-parseargs(char *start, char *end)
+parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
 {
     if (start == end) {
         return NULL;
@@ -46,25 +47,28 @@ parseargs(char *start, char *end)
      * char * (slice) (start - end)
      */
 
-    char *copy = calloc(end - start, 1);
-    char *saveptr;
+    char *copy = calloc(str_length(start, end), 1);
+    memmove(copy, start, str_length(start, end));
 
-    memmove(copy, start, end - start);
+    size_t length = 0;
+    size_t capacity = 1;
+    char **argv = calloc(capacity, sizeof(char *));
 
     /* now we can use strtok_r to tokenize on IFS */
     /* char *strtok_r(char *restrict str, const char *restrict delim,
                       char **restrict saveptr); */
-    /* TODO: get strtok working here */
-    printf("%s\n", copy);
     char *tok;
-    tok = strtok(copy, " ");
+    tok = strtok(copy, (char[]){IFS, 0});
     while (tok) {
-        printf("%s\n", tok);
-        tok = strtok(NULL, " ");
+        vec_push_back(char *, argv, capacity, length, tok);
+        tok = strtok(NULL, (char[]){IFS, 0});
         if (tok == NULL) {
             break;
         }
     }
 
-    return NULL;
+    /* make sure no NULL ptrs */
+    if (_length) *_length = length;
+    if (_capacity) *_capacity = capacity;
+    return argv;
 }

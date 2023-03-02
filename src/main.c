@@ -3,6 +3,10 @@
 #include "lib.h"
 #include "command.h"
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /* Main commands
  * - getcmd: 
@@ -12,6 +16,8 @@
  * - runcmd:
  *      runs the parsed command
  */
+
+#define SZ 1024
 
 int
 main(int argc, char **argv)
@@ -40,7 +46,8 @@ main(int argc, char **argv)
     char **command = parseargs(line, end, &length, &capacity);
     vec_print(char *, command, length, "%s");
     */
-    // char line[] = "echo -n 'hello' & > outfile";
+
+    /*
     char line[] = "echo    'hello'     &    >    outfile";
 
     struct cmd *c = parsecmd(line, strlen(line));
@@ -48,5 +55,32 @@ main(int argc, char **argv)
     runcmd(c);
     cleancmd(c);
     printf("This is after run!");
+    */
+
+    FILE *fp;
+    int mode;
+
+    fp = NULL;
+    mode = CMDINTER;
+    if (argc > 1) {
+        fp = fopen(argv[1], "r");
+        if (fp == NULL) {
+            perror(argv[1]);
+            return 1;
+        }
+        mode = CMDBATCH;
+    }
+
+    char line[SZ];
+    struct cmd *c;
+
+    /* TODO strip single arg strings whitespace, e.g. "echo " */
+    while (getcmd(mode, fp, line, SZ) == 0){
+        c = parsecmd(line, SZ);
+        printcmd(c);
+        runcmd(c);
+        cleancmd(c);
+    }
+
     return 0;
 }

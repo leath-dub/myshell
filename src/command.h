@@ -47,7 +47,7 @@ int parsewrite(struct cmd *c, char *start, char *match, size_t match_length, cha
 int parseread(struct cmd *c, char *start, char *match, size_t match_length, char *end);
 int parseappend(struct cmd *c, char *start, char *match, size_t match_length, char *end);
 int parseback(struct cmd *c, char *start, char *match, size_t match_length, char *end);
-char *getcmd(int mode);
+int getcmd(int mode, FILE *stream, char *buf, size_t bufsz);
 struct cmd *parsecmd(char *parseme, size_t length);
 int runcmd(struct cmd *c);
 void printcmd(struct cmd *c);

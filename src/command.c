@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <err.h>
 
 #include "parser.h"
 #include "command.h"
@@ -162,6 +163,7 @@ parsecmd(char *parseme, size_t length)
      * i to the end. This substring is then checked against the special
      * tokens
      */ // TODO all parsing should be done in parser.c
+        // TODO ignore things in strings
     int matchp;
     int matchq[2] = {-1, -1};          // stores match positions
     const tok_map_t *tokq[2] = {0, 0}; // stores match token values
@@ -285,6 +287,37 @@ cleancmd(struct cmd *c)
         free(c->argv);
     }
     free(c);
+
+    return 0;
+}
+
+int
+getcmd(int mode, FILE *stream, char *buf, size_t bufsz)
+{
+    size_t length;
+
+    /* clean the buffer */
+    memset(buf, 0, bufsz);
+
+    if (mode == CMDINTER) {
+        stream = stdin;
+        /* draw the prompt */
+        write(STDOUT_FILENO, "> ", 2);
+    }
+
+    if (mode == CMDBATCH && stream == NULL) {
+        fprintf(stderr, "invalid stream\n");
+        return 1;
+    }
+
+    if (fgets(buf, bufsz, stream) != buf) {
+        return 1;
+    }
+
+    length = strlen(buf);
+    if (buf[length - 1] == '\n') {
+        buf[length - 1] = 0;
+    }
 
     return 0;
 }

@@ -198,6 +198,7 @@ parsecmd(char *parseme, size_t length)
     int queue_is_full;
     int queue_has_item;
     int match_position_queue[2];
+    int string_flags;
     const tok_map_t *token_queue[2];
 
     struct cmd *cmd = calloc(1, sizeof(struct cmd));
@@ -223,7 +224,14 @@ parsecmd(char *parseme, size_t length)
     memset(match_position_queue, -1, 2 * sizeof(int));
     memset(token_queue, 0, 2 * sizeof(tok_map_t *));
 
+    string_flags = 0;
     for (size_t i = 0; i < length; i += 1) {
+        if (parseme[i] == '\'') bin_toggle_flag(string_flags, STR_SINGLE_QUOTE_OPEN);
+        if (parseme[i] == '\"') bin_toggle_flag(string_flags, STR_DOUBLE_QUOTE_OPEN);
+        if (string_flags) { // open strings
+            continue;
+        }
+
         match_position = tok_match(&parseme[i], length - i, tokens);
         if (match_position == tok_failed_match) {
             continue;

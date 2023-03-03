@@ -141,18 +141,73 @@ checkback(char *line, size_t length)
     return back;
 }
 
+static void
+push_to_position_queue(int item, int *queue) {
+    queue[1] = queue[0];
+    queue[0] = item;
+}
+
+static void
+push_to_token_queue(const tok_map_t *item, const tok_map_t **queue)
+{
+    queue[1] = queue[0];
+    queue[0] = item;
+}
+
+/* function that processess from previous match to current match */
+static void
+process_previous_match(struct cmd *cmd, char *parseme, const tok_map_t **token_queue, int *match_position_queue)
+{
+    tok_fn process_match;
+    char *start, *current_match, *next_match;
+    size_t current_match_length;
+
+    /* cast void * as tok fn */
+    process_match = (tok_fn)token_queue[1]->process;
+    start = parseme;
+    current_match = start + match_position_queue[1];
+    current_match_length = token_queue[0]->token_l;
+    next_match = start + match_position_queue[0] - current_match_length;
+    process_match(cmd, start, current_match, current_match_length,
+                  next_match);
+    /* tok_match returns the end position of the match so we need
+     * to minus its length to get the start
+     */
+}
+
+/* function to process any match remaining to the end of the string */
+static void
+process_any_match_left(struct cmd *cmd, char *parseme, size_t parseme_length, const tok_map_t **token_queue, int *match_position_queue)
+{
+    tok_fn process_match;
+    char *start, *current_match, *end;
+    size_t current_match_length;
+
+    process_match = (tok_fn)token_queue[0]->process;
+    start = parseme;
+    current_match = parseme + match_position_queue[0];
+    current_match_length = token_queue[0]->token_l;
+    end = parseme + parseme_length - 1;
+    process_match(cmd, start, current_match, current_match_length, end);
+}
 
 struct cmd *
 parsecmd(char *parseme, size_t length)
 {
-    struct cmd *c = calloc(1, sizeof(struct cmd));
-    if (!c) {
+    int match_position;
+    int queue_is_full;
+    int queue_has_item;
+    int match_position_queue[2];
+    const tok_map_t *token_queue[2];
+
+    struct cmd *cmd = calloc(1, sizeof(struct cmd));
+    if (!cmd) {
         die("Failed call to calloc");
     }
 
     /* remove any & that are un escaped or not in a string */
     if (checkback(parseme, length)) {
-        bin_set_flag(c->flags, BACK);
+        bin_set_flag(cmd->flags, BACK);
     }
 
     /* below is an algorithm that utilizes 2 queues, it basically keeps a
@@ -164,38 +219,37 @@ parsecmd(char *parseme, size_t length)
      * tokens
      */ // TODO all parsing should be done in parser.c
         // TODO ignore things in strings
-    int matchp;
-    int matchq[2] = {-1, -1};          // stores match positions
-    const tok_map_t *tokq[2] = {0, 0}; // stores match token values
+
+    memset(match_position_queue, -1, 2 * sizeof(int));
+    memset(token_queue, 0, 2 * sizeof(tok_map_t *));
+
     for (size_t i = 0; i < length; i += 1) {
-        matchp = tok_match(&parseme[i], length - i, tokens);
-        if (matchp != tok_failed_match) {
-            i += tokens[matchp].token_l - 1; // ensures things like ">>" dont match twice
-
-            tokq[1] = tokq[0];         // shift q and put current match
-            tokq[0] = &tokens[matchp]; // in front, same for matchq below.
-            matchq[1] = matchq[0];
-            matchq[0] = i;
-
-            if (matchq[1] > 0) {
-                /* cast void * as tok fn */
-                ((tok_fn)tokq[1]->process)(c, parseme, parseme + matchq[1],
-                                           tokq[0]->token_l, parseme + matchq[0]
-                                             - tokq[0]->token_l);
-                /* tok_match returns the end position of the match so we need
-                 * to minus its length to get the start
-                 */
-            }
+        match_position = tok_match(&parseme[i], length - i, tokens);
+        if (match_position == tok_failed_match) {
+            continue;
         }
+
+        i += tokens[match_position].token_l - 1; // ensures things like ">>" dont match twice
+
+        push_to_token_queue(&tokens[match_position], token_queue);
+        push_to_position_queue(i, match_position_queue);
+
+        queue_is_full = match_position_queue[1] != -1;
+        if (!queue_is_full) {
+            continue;
+        }
+
+        process_previous_match(cmd, parseme, token_queue, match_position_queue);
     }
-    if (matchq[0] > 0) {
-        ((tok_fn)tokq[0]->process)(c, parseme, parseme + matchq[0], tokq[0]->token_l, parseme + length - 1);
+    queue_has_item = match_position_queue[0] > 0;
+    if (queue_has_item) {
+        process_any_match_left(cmd, parseme, length, token_queue, match_position_queue);
     }
 
     // may not have exec yet, if no match was found e.g
-    parseexec(c, parseme, parseme + length - 1);
+    parseexec(cmd, parseme, parseme + length - 1);
 
-    return c;
+    return cmd;
 }
 
 int
@@ -222,6 +276,8 @@ runcmd(struct cmd *c)
     return 0;
 }
 
+#define print_if_true(cond, ...) if (cond) printf(__VA_ARGS__);
+
 void
 printcmd(struct cmd *c)
 {
@@ -229,18 +285,11 @@ printcmd(struct cmd *c)
     printf("Command @%p\n", (void *)c);
     printf("| flags: ");
     printf("0x%x ", c->flags);
-    if (bin_isset_flag(c->flags, BACK)) {
-        printf("BACK ");
-    }
-    if (bin_isset_flag(c->flags, REDRI)) {
-        printf("REDRI ");
-    }
-    if (bin_isset_flag(c->flags, REDRO)) {
-        printf("REDRO ");
-    }
-    if (bin_isset_flag(c->flags, EXEC)) {
-        printf("EXEC");
-    }
+
+    print_if_true(bin_isset_flag(c->flags, BACK), "BACK ");
+    print_if_true(bin_isset_flag(c->flags, REDRI), "REDRI ");
+    print_if_true(bin_isset_flag(c->flags, REDRO), "REDRO ");
+    print_if_true(bin_isset_flag(c->flags, EXEC), "EXEC");
     putchar('\n');
 
     printf("| fdout: ");

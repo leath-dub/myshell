@@ -59,6 +59,7 @@ main(int argc, char **argv)
 
     FILE *fp;
     int mode;
+    int cmd_is_valid;
 
     fp = NULL;
     mode = CMDINTER;
@@ -72,14 +73,14 @@ main(int argc, char **argv)
     }
 
     char line[SZ];
-    struct cmd *c;
+    struct cmd *cmd;
 
     /* TODO strip single arg strings whitespace, e.g. "echo " */
-    while (getcmd(mode, fp, line, SZ) == 0){
-        c = parsecmd(line, SZ);
-        printcmd(c);
-        runcmd(c);
-        cleancmd(c);
+    while (getcmd(mode, fp, line, SZ) == 0) {
+        cmd = parsecmd(line, SZ);
+        printcmd(cmd);
+        runcmd(cmd);
+        cleancmd(cmd);
     }
 
     return 0;

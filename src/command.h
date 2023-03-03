@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <aio.h>
 
 #ifndef COMMAND_H
 #define COMMAND_H
@@ -39,6 +40,7 @@ struct cmd {
     int fdin;
     int argc;
     int rc;
+    pid_t pid;
     char **argv;
 };
 
@@ -47,7 +49,7 @@ int parsewrite(struct cmd *c, char *start, char *match, size_t match_length, cha
 int parseread(struct cmd *c, char *start, char *match, size_t match_length, char *end);
 int parseappend(struct cmd *c, char *start, char *match, size_t match_length, char *end);
 int parseback(struct cmd *c, char *start, char *match, size_t match_length, char *end);
-int getcmd(int mode, FILE *stream, char *buf, size_t bufsz);
+int getcmd(int mode, FILE *stream, char *buf, size_t bufsz, size_t *read);
 struct cmd *parsecmd(char *parseme, size_t length);
 int runcmd(struct cmd *c);
 void printcmd(struct cmd *c);

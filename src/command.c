@@ -266,8 +266,10 @@ runcmd(struct cmd *c)
         if (bin_isset_flag(c->flags, REDRI)) dup2(c->fdin, STDIN_FILENO);
         if (bin_isset_flag(c->flags, REDRO)) dup2(c->fdout, STDOUT_FILENO);
         execvp(c->argv[0], c->argv);
-        perror("execvp");
+        perror(c->argv[0]);
+        exit(1); // child exits
     } else {
+        c->pid = pid; // set child pid
         if (!bin_isset_flag(c->flags, BACK)) { // run in background
             waitpid(pid, &status, 0);
         } // else don't wait, run in background
@@ -320,6 +322,12 @@ int
 cleancmd(struct cmd *c)
 {
     int flags;
+    int cmd_is_null;
+
+    cmd_is_null = c == NULL;
+    if (cmd_is_null) {
+        return 1;
+    }
 
     flags = c->flags;
 
@@ -341,7 +349,7 @@ cleancmd(struct cmd *c)
 }
 
 int
-getcmd(int mode, FILE *stream, char *buf, size_t bufsz)
+getcmd(int mode, FILE *stream, char *buf, size_t bufsz, size_t *bytes_read)
 {
     size_t length;
 
@@ -366,7 +374,9 @@ getcmd(int mode, FILE *stream, char *buf, size_t bufsz)
     length = strlen(buf);
     if (buf[length - 1] == '\n') {
         buf[length - 1] = 0;
+        length = length - 1;
     }
+    *bytes_read = length;
 
     return 0;
 }

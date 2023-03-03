@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
 
 /* Main commands
  * - getcmd: 
@@ -18,6 +19,13 @@
  */
 
 #define SZ 1024
+
+void handle_interrupt(int sigint);
+void shell();
+
+static int mode;
+static FILE *stream;
+static struct cmd *cmd;
 
 int
 main(int argc, char **argv)
@@ -57,31 +65,52 @@ main(int argc, char **argv)
     printf("This is after run!");
     */
 
-    FILE *fp;
-    int mode;
-    int cmd_is_valid;
-
-    fp = NULL;
     mode = CMDINTER;
     if (argc > 1) {
-        fp = fopen(argv[1], "r");
-        if (fp == NULL) {
+        stream = fopen(argv[1], "r");
+        if (stream == NULL) {
             perror(argv[1]);
             return 1;
         }
         mode = CMDBATCH;
     }
 
+    shell();
+    return 0;
+}
+
+void
+shell()
+{
     char line[SZ];
-    struct cmd *cmd;
+    size_t bytes_read;
+    int cmd_is_valid;
+
+    cmd = NULL;
+    signal(SIGINT, handle_interrupt);
 
     /* TODO strip single arg strings whitespace, e.g. "echo " */
-    while (getcmd(mode, fp, line, SZ) == 0) {
-        cmd = parsecmd(line, SZ);
+    cmd_is_valid = getcmd(mode, stream, line, SZ, &bytes_read) == 0;
+    while (cmd_is_valid) {
+        cmd = parsecmd(line, bytes_read);
         printcmd(cmd);
         runcmd(cmd);
         cleancmd(cmd);
+        cmd = NULL;
+        cmd_is_valid = getcmd(mode, stream, line, SZ, &bytes_read) == 0;
     }
+}
 
-    return 0;
+void
+handle_interrupt(int sigint)
+{
+    puts("");
+    if (cmd) {
+        kill(cmd->pid, SIGINT);
+        printf("killed [%d]\n", cmd->pid);
+        fflush(stdout);
+        cleancmd(cmd);
+        cmd = NULL;
+    }
+    shell();
 }

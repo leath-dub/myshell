@@ -1,3 +1,6 @@
+#ifndef TOKEN_H
+#define TOKEN_H
+
 #include <unistd.h>
 #include "command.h"
 
@@ -14,3 +17,5 @@ enum tok_match_t {
 
 int tok_match_iter(char q, const tok_map_t *toks, int column);
 int tok_match(char *q, int len, const tok_map_t *toks);
+
+#endif

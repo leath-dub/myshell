@@ -14,6 +14,7 @@
 #include "token.h"
 #include "lib.h"
 #include "prompt.h"
+#include "builtin.h"
 
 
 extern char **environ;
@@ -272,9 +273,16 @@ runcmd(struct cmd *c)
 {
     pid_t pid;
     int status;
+    builtin *builtin_cmd;
 
     if (!bin_isset_flag(c->flags, EXEC)) return 0; // nothing to do
     if (!c->argv) return -1;
+
+    builtin_cmd = get_builtin(c->argv[0]);
+    if (builtin_cmd) {
+        c->rc = builtin_cmd->execute(c);
+        return c->rc;
+    }
 
     pid = fork();
     if (pid == 0) { // child
@@ -291,6 +299,7 @@ runcmd(struct cmd *c)
         c->pid = pid; // set child pid
         if (!bin_isset_flag(c->flags, BACK)) { // run in background
             waitpid(pid, &status, 0);
+            c->rc = status;
         } // else don't wait, run in background
     }
 

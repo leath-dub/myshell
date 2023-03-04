@@ -38,7 +38,7 @@ draw_prompt()
     for (size_t i = 0; i < prompt_unformatted_length - 1; i += 1) {
         character = prompt_unformatted[i];
         if (character == SPECIAL_PROMPT_CHARACTER) {
-            format_character = prompt_unformatted[i + 1];
+            format_character = prompt_unformatted[++i];
             in_range = format_character <= drawer_range;
 
             if (in_range) {

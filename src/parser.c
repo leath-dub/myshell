@@ -2,37 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "token.h"
 #include "parser.h"
 #include "lib.h"
-
-/* Token map is used to map patterns to functions
- * token    token_l    proccess */
-static const tok_map_t tokens[] = {
-    {">", 1, NULL}, // TODO actuall link them to functions
-    {"<", 1, NULL},
-    {">>", 2, NULL},
-    {"&", 1, NULL},
-    0,
-};
-
-void
-parser_parse_line(char *raw_input, int length)
-{
-    int pos;
-
-    /* Iterate through the line, viewing each point as a substring from
-     * i to the end. This substring is then checked against the special
-     * tokens
-     */
-    for (unsigned int i = 0; i < length; i += 1) {
-        pos = tok_match(&raw_input[i], length - i, tokens);
-        if (pos != tok_failed_match) {
-            i += tokens[pos].token_l - 1; // ensures things like ">>" dont match twice
-            printf("match %s\n", tokens[pos].token);
-        }
-    }
-}
 
 char *
 parsearg(char *start, size_t length)
@@ -93,7 +64,7 @@ parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
 
 
     /* make sure no NULL ptrs */
-    if (_length) *_length = length;
+    if (_length) *_length = length - 1;
     if (_capacity) *_capacity = capacity;
     return argv;
 }

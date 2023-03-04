@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "token.h"
-#include "redirect.h"
 #include "parser.h"
 #include "lib.h"
 

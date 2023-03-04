@@ -62,6 +62,10 @@ parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
         return NULL;
     }
 
+    if (empty(start)) { /* do nothing if its empty string */
+        return NULL;
+    }
+
     /* We need to allocate
      * char ** (arg vector to return) (args * sizeof (char))
      * char * (slice) (start - end)

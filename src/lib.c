@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdarg.h>
+#include <err.h>
 
 void
 die(char *msg)
@@ -48,4 +50,9 @@ str_alloc(const char *s)
 
     strcpy(new, s);
     return new;
+}
+
+int
+empty(char *s) {
+    return (int)*s ? 0 : 1;
 }

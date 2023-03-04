@@ -52,6 +52,7 @@
 #define bin_toggle_flag(flags, flag) flags ^= flag
 
 #define str_length(start, end) ((size_t)(end - start) / sizeof(char) + 1)
+#define arr_length(arr) sizeof(arr) / sizeof(*arr)
 
 #define foreach(T, e, object, length)                                          \
   for (T *_iter = object, e = *_iter; _iter != (object + length);              \
@@ -62,5 +63,6 @@
 void die(char *msg);
 char *strip(char *start, char *end, const char ch);
 char *str_alloc(const char *s);
+int empty(char *s);
 
 #endif

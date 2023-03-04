@@ -7,12 +7,19 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <err.h>
+#include <stdlib.h>
 
 #include "parser.h"
 #include "command.h"
 #include "token.h"
 #include "lib.h"
+#include "prompt.h"
 
+
+extern char **environ;
+
+/* from main.c */
+extern char *path_to_shell;
 
 /* TODO use open_memestream to store commandline buffer */
 
@@ -273,6 +280,10 @@ runcmd(struct cmd *c)
     if (pid == 0) { // child
         if (bin_isset_flag(c->flags, REDRI)) dup2(c->fdin, STDIN_FILENO);
         if (bin_isset_flag(c->flags, REDRO)) dup2(c->fdout, STDOUT_FILENO);
+
+        /* set parent=<path to shell executable> */
+        setenv("parent", path_to_shell, 0);
+
         execvp(c->argv[0], c->argv);
         perror(c->argv[0]);
         exit(1); // child exits
@@ -293,6 +304,7 @@ printcmd(struct cmd *c)
 {
     /* print the flags */
     printf("Command @%p\n", (void *)c);
+    printf("| pid: %d", c->pid);
     printf("| flags: ");
     printf("0x%x ", c->flags);
 
@@ -324,6 +336,7 @@ printcmd(struct cmd *c)
     } else {
         printf("(nil)\n");
     }
+
 }
 
 int
@@ -366,8 +379,8 @@ getcmd(int mode, FILE *stream, char *buf, size_t bufsz, size_t *bytes_read)
 
     if (mode == CMDINTER) {
         stream = stdin;
-        /* draw the prompt */
-        write(STDOUT_FILENO, "> ", 2);
+        draw_prompt();
+        fflush(stdout);
     }
 
     if (mode == CMDBATCH && stream == NULL) {

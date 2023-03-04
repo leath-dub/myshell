@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <stdlib.h>
 
 /* Main commands
  * - getcmd: 
@@ -26,6 +27,7 @@ void shell();
 static int mode;
 static FILE *stream;
 static struct cmd *cmd;
+char *path_to_shell;
 
 int
 main(int argc, char **argv)
@@ -64,6 +66,9 @@ main(int argc, char **argv)
     cleancmd(c);
     printf("This is after run!");
     */
+    path_to_shell = argv[0];
+    setenv("shell", path_to_shell, 0);
+    setenv("prompt", "%p> ", 0); /* set default prompt */
 
     mode = CMDINTER;
     if (argc > 1) {
@@ -85,18 +90,20 @@ shell()
     char line[SZ];
     size_t bytes_read;
     int cmd_is_valid;
+    int end_of_file;
 
     cmd = NULL;
     signal(SIGINT, handle_interrupt);
 
     /* TODO strip single arg strings whitespace, e.g. "echo " */
+    end_of_file = feof(stdin);
     cmd_is_valid = getcmd(mode, stream, line, SZ, &bytes_read) == 0;
-    while (cmd_is_valid) {
+    while (!end_of_file && cmd_is_valid) {
         cmd = parsecmd(line, bytes_read);
-        printcmd(cmd);
         runcmd(cmd);
         cleancmd(cmd);
         cmd = NULL;
+        end_of_file = feof(stdin);
         cmd_is_valid = getcmd(mode, stream, line, SZ, &bytes_read) == 0;
     }
 }

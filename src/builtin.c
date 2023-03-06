@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <err.h>
@@ -6,17 +7,18 @@
 
 #include "builtin.h"
 #include "token.h"
+#include "lib.h"
 
 extern char **environ;
 
 builtin builtins[] = {
     {"cd", builtin_cd},
-    {"clr", 0},
+    {"clr", builtin_clr},
     {"dir", builtin_dir},
-    {"environ", 0},
-    {"echo", 0},
+    {"environ", builtin_environ},
+    {"echo", builtin_echo},
     {"help", 0},
-    {"pause", 0},
+    {"pause", builtin_pause},
     {0, 0},
 };
 
@@ -76,8 +78,16 @@ builtin_cd(struct cmd *cmd)
     return 0;
 }
 
-// int builtin_clr(struct cmd *cmd);
-int builtin_dir(struct cmd *cmd)
+int
+builtin_clr(struct cmd *cmd)
+{
+    printf("\033[2J\033[H");
+    cmd->rc = 0;
+    return 0;
+}
+
+int
+builtin_dir(struct cmd *cmd)
 {
     int argc;
     char **argv;
@@ -119,7 +129,71 @@ int builtin_dir(struct cmd *cmd)
     cmd->rc = 0;
     return 0;
 }
-// int builtin_environ(struct cmd *cmd);
-// int builtin_echo(struct cmd *cmd);
+
+int
+builtin_environ(struct cmd *cmd)
+{
+    char **environment_variables;
+
+    environment_variables = environ;
+    for (char **variable = environment_variables
+            ; *variable
+            ; variable += 1) {
+        printf("%s\n", *variable);
+    }
+    fflush(stdout);
+
+    cmd->rc = 0;
+    return 0;
+}
+
+int
+builtin_echo(struct cmd *cmd)
+{
+    int is_last;
+    char *argument;
+    const char separator = ' ';
+
+    for (int i = 1; i < cmd->argc; i += 1) {
+        argument = cmd->argv[i];
+        printf("%s", argument);
+
+        is_last = i == cmd->argc - 1;
+        if (is_last) {
+            break;
+        }
+        putchar(separator);
+    }
+    putchar('\n');
+    fflush(stdout);
+
+    cmd->rc = 0;
+    return 0;
+}
+
 // int builtin_help(struct cmd *cmd);
-// int builtin_pause(struct cmd *cmd);
+
+int
+builtin_pause(struct cmd *cmd)
+{
+    char char_from_user;
+    const char *input_message = "Press enter to continue...";
+
+
+    printf("%s", input_message);
+    fflush(stdout);
+
+    system("stty -echo -icanon");
+    loop {
+        if (read(STDIN_FILENO, &char_from_user, 1) == 1) {
+        }
+        if (char_from_user == '\n') {
+            system("stty echo icanon");
+            break;
+        }
+    }
+    puts("");
+
+    cmd->rc = 0;
+    return 0;
+}

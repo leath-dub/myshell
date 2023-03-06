@@ -100,6 +100,11 @@ shell()
     cmd_is_valid = getcmd(mode, stream, line, SZ, &bytes_read) == 0;
     while (!end_of_file && cmd_is_valid) {
         cmd = parsecmd(line, bytes_read);
+
+#       ifdef debug
+            printcmd(cmd);
+#       endif
+
         runcmd(cmd);
         cleancmd(cmd);
         cmd = NULL;
@@ -112,6 +117,9 @@ void
 handle_interrupt(int sigint)
 {
     puts("");
+    system("stty echo icanon"); /* pause disables line buffering, so we make
+                                   sure it doesn't keep echo off and cannonical
+                                   mode on */
     if (cmd) {
         kill(cmd->pid, SIGINT);
         printf("killed [%d]\n", cmd->pid);

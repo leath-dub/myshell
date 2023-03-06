@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <err.h>
+#include <termios.h>
 
 void
 die(char *msg)
@@ -53,6 +54,7 @@ str_alloc(const char *s)
 }
 
 int
-empty(char *s) {
+empty(char *s)
+{
     return (int)*s ? 0 : 1;
 }

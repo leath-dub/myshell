@@ -339,6 +339,9 @@ printcmd(struct cmd *c)
     }
     putchar('\n');
 
+    printf("| argc: ");
+    print_if_true(bin_isset_flag(c->flags, EXEC), "%d\n", c->argc);
+
     printf("| argv: ");
     if (bin_isset_flag(c->flags, EXEC) && c->argv) {
         vec_print(char *, c->argv, c->argc, "%s");

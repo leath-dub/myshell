@@ -26,6 +26,7 @@
         if (!temp) {                                                          \
             die("Failed to realloc");                                         \
         }                                                                     \
+        vector = temp;                                                        \
         capacity = (capacity * CAPACITY_MULTIPLIER);                          \
         *((T *)vector + length) = item;                                       \
         length += 1;                                                          \

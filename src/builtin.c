@@ -99,28 +99,24 @@ builtin_dir(struct cmd *cmd)
 {
     char **new_command;
     struct cmd temp_command;
-    size_t command_length;
-    size_t command_capacity;
+    size_t length;
+    size_t capacity;
 
-    command_capacity = 16;
-    new_command = calloc(command_capacity, sizeof(char *));
-    command_length = 0;
+    length = 0;
+    capacity = 16;
+    new_command = calloc(capacity, sizeof(char *));
 
-    vec_push_back(char *,
-        new_command, command_capacity, command_length, "ls");
-    vec_push_back(char *,
-        new_command, command_capacity, command_length, "-la");
+    vec_push_back(char *, new_command, capacity, length, "ls");
+    vec_push_back(char *, new_command, capacity, length, "-la");
 
     for (int i = 1; i < cmd->argc; i++) {
-        vec_push_back(char *,
-            new_command, command_capacity, command_length, cmd->argv[i]);
+        vec_push_back(char *, new_command, capacity, length, cmd->argv[i]);
     }
-    vec_push_back(char *,
-        new_command, command_capacity, command_length, NULL);
+    vec_push_back(char *, new_command, capacity, length, 0); // null terminate
 
     memmove(&temp_command, cmd, sizeof(struct cmd));
     temp_command.argv = new_command;
-    temp_command.argc = command_length;
+    temp_command.argc = length;
     runcmd(&temp_command);
     free(new_command);
 

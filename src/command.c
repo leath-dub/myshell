@@ -313,7 +313,7 @@ printcmd(struct cmd *c)
 {
     /* print the flags */
     printf("Command @%p\n", (void *)c);
-    printf("| pid: %d", c->pid);
+    printf("| pid: %d\n", c->pid);
     printf("| flags: ");
     printf("0x%x ", c->flags);
 

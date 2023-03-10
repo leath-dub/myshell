@@ -42,10 +42,6 @@ parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
      */
 
     char *copy = strip(start, end, ' ');
-    /*
-    char *copy = calloc(str_length(start, end) + 1, sizeof(char));
-    memmove(copy, start, str_length(start, end));
-    */
 
     size_t length = 0;
     size_t capacity = 10;

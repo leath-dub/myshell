@@ -62,6 +62,7 @@
 
 void die(char *msg);
 char *strip(char *start, char *end, const char ch);
+char *join(char **list, size_t length, char glue);
 char *str_alloc(const char *s);
 int empty(char *s);
 

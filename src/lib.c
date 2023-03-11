@@ -35,36 +35,11 @@ strip(char *start, char *end, const char ch)
         free(result);
         return 0;
     }
-    memmove(result, new_start, length);
+
+    memmove(result, new_start, length * sizeof(char));
     result[length] = '\0';
 
     return result;
-}
-
-char *
-join(char **list, size_t length, char glue)
-{
-    char *joined;
-    char *joined_end;
-    size_t joined_length;
-    size_t item_length;
-    size_t new_length;
-
-    joined = NULL;
-    joined_length = 0;
-    for (size_t i = 0; i < length; i++) {
-        item_length = strlen(list[i]);
-        new_length = (joined_length + item_length) + glue ? 1 : 0;
-        joined = realloc(joined, new_length * sizeof(char));
-
-        joined[joined_length] = glue;
-        joined_end = joined + joined_length;
-        *joined_end = glue;
-        joined_end += glue ? 1 : 0;
-        memmove(joined_end, list[i], item_length);
-    }
-
-    return joined;
 }
 
 char *

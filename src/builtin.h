@@ -3,6 +3,8 @@
 
 #include "command.h"
 
+#define exit_quit 0x200
+
 typedef int (*builtin_func) (struct cmd *);
 
 typedef struct {
@@ -19,5 +21,6 @@ int builtin_environ(struct cmd *cmd);
 int builtin_echo(struct cmd *cmd);
 // int builtin_help(struct cmd *cmd);
 int builtin_pause(struct cmd *cmd);
+int builtin_quit(struct cmd *cmd);
 
 #endif

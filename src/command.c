@@ -280,8 +280,7 @@ runcmd(struct cmd *c)
 
     builtin_cmd = get_builtin(c->argv[0]);
     if (builtin_cmd) {
-        c->rc = builtin_cmd->execute(c);
-        return c->rc;
+        return builtin_cmd->execute(c);
     }
 
     pid = fork();

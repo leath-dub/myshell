@@ -26,6 +26,7 @@ builtin builtins[] = {
     {"echo", builtin_echo},
     {"help", 0},
     {"pause", builtin_pause},
+    {"quit", builtin_quit},
     {0, 0},
 };
 
@@ -101,23 +102,36 @@ builtin_dir(struct cmd *cmd)
     struct cmd temp_command;
     size_t length;
     size_t capacity;
+    int any_arguments;
 
+    any_arguments = cmd->argc > 1;
+    if (!any_arguments) {
+        /* print the current path if no arguments */
+        dprintf(cmd->fdout, "current: %s\n", getenv("PWD"));
+        cmd->rc = 0;
+        return 0;
+    }
+
+    /* allocate space for new command */
     length = 0;
     capacity = 16;
     new_command = calloc(capacity, sizeof(char *));
 
+    /* prefix command */
     vec_push_back(char *, new_command, capacity, length, "ls");
     vec_push_back(char *, new_command, capacity, length, "-la");
 
+    /* copy the end as the old command */
     for (int i = 1; i < cmd->argc; i++) {
         vec_push_back(char *, new_command, capacity, length, cmd->argv[i]);
     }
     vec_push_back(char *, new_command, capacity, length, 0); // null terminate
 
+    /* use old cmd as a template for temp_command */
     memmove(&temp_command, cmd, sizeof(struct cmd));
-    temp_command.argv = new_command;
+    temp_command.argv = new_command; /* set new argv */
     temp_command.argc = length;
-    runcmd(&temp_command);
+    runcmd(&temp_command); /* execute */
     free(new_command);
 
     return 0;
@@ -188,3 +202,11 @@ builtin_pause(struct cmd *cmd)
     cmd->rc = 0;
     return 0;
 }
+
+int
+builtin_quit(struct cmd *cmd)
+{
+    cmd->rc = 0;
+    return exit_quit;
+}
+

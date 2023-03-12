@@ -76,7 +76,7 @@ parseio(struct cmd *c, char *start, char *match, size_t match_length, char *end,
         fprintf(stderr, "invalid right operand\n");
         return 0;
     }
-    rhs = strip(match + 1, end, ' '); // strip leading/trailing space
+    rhs = strip(match + 1, end, " \t"); // strip leading/trailing space
 
     *fd = open(rhs, flags, 0666);
     if (*fd < 0) {
@@ -91,15 +91,14 @@ parseio(struct cmd *c, char *start, char *match, size_t match_length, char *end,
     free(rhs);
 
     /* echo 'hello' >> world  # this is how you get lhs operand
-     *              |^ match
-     *              ^ match - match_length
-     * the extra 1 is because of 0 indexing
+     * ^           ^ ^
+     * start       | match
+     *             match - match_length
      */
-    parseexec(c, start, match - 1 - match_length);
+    parseexec(c, start, match - match_length);
     return 0;
 }
 
-/* TODO: add the lhs parsing to make a command to exec */
 int
 parsewrite(struct cmd *c, char *start, char *match, size_t match_length, char *end)
 {

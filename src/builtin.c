@@ -170,7 +170,7 @@ builtin_echo(struct cmd *cmd)
         }
         write(cmd->fdout, &(char[]){separator, 0}, 1);
     }
-    write(cmd->fdout, "\n", 1);
+    write(cmd->fdout, "\n", 1); // finally print newline
 
     cmd->rc = 0;
     return 0;

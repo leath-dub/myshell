@@ -19,9 +19,12 @@ parsearg(char *start, size_t length)
         ch = start[i];
         if (ch == '\'') flags ^= STR_SINGLE_QUOTE_OPEN;
         if (ch == '\"') flags ^= STR_DOUBLE_QUOTE_OPEN;
-        if (!flags && ch == IFS) {
+        if (!flags && (ch == ' ' || ch == '\t')) {
             tmp = &start[i];
-            while (*tmp == IFS) { *tmp = 0; tmp++; }
+            while (*tmp == ' ' || *tmp == '\t') {
+                *tmp = '\0';
+                tmp++;
+            }
             return tmp;
         }
     }
@@ -50,7 +53,7 @@ parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
      * char * (slice) (start - end)
      */
 
-    char *copy = strip(start, end, ' ');
+    char *copy = strip(start, end, " \t");
 
     length = 0;
     capacity = 16;

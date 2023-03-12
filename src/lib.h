@@ -62,7 +62,7 @@
 #define loop for (;;)
 
 void die(char *msg);
-char *strip(char *start, char *end, const char ch);
+char *strip(char *start, char *end, const char *chars);
 char *join(char **list, size_t length, char glue);
 char *str_alloc(const char *s);
 int empty(char *s);

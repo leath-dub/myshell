@@ -16,7 +16,7 @@ die(char *msg)
 }
 
 char *
-strip(char *start, char *end, const char ch)
+strip(char *start, char *end, const char *chars)
 {
     size_t length;
     char *result, *new_start, *new_end;
@@ -24,8 +24,8 @@ strip(char *start, char *end, const char ch)
     new_start = start;
     new_end = end;
 
-    while (*new_start == ch && new_start < end) ++new_start;
-    while (*new_end == ch && new_end > start) --new_end;
+    while (strchr(chars, *new_start) && new_start < end) ++new_start;
+    while (strchr(chars, *new_end) && new_end > start) --new_end;
 
     length = str_length(new_start, new_end);
     result = calloc(length + 1, sizeof(char));

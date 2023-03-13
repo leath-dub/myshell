@@ -35,7 +35,7 @@ clean:
 	rm -f $(obj)
 
 bin:
-	mkdir bin
+	mkdir -p bin
 
 # manual copy hook, uses xxd to copy manual into char buf in manual.h
 manual:

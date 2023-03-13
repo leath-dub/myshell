@@ -98,11 +98,7 @@ handle_interrupt(int sigint)
                                    sure it doesn't keep echo off and cannonical
                                    mode on */
     if (cmd) {
-        kill(cmd->pid, SIGINT);
+        kill(cmd->pid, SIGINT); /* kill child */
         printf("killed [%d]\n", cmd->pid);
-        fflush(stdout);
-        cleancmd(cmd);
-        cmd = NULL;
     }
-    shell();
 }

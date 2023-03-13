@@ -6,6 +6,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <spawn.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <sys/syscall.h>
 
 #include "builtin.h"
 #include "token.h"
@@ -19,6 +22,7 @@
 
 extern char **environ;
 extern const char *manual_README_md;
+extern char *path_to_shell;
 
 builtin builtins[] = {
     {"cd", builtin_cd},
@@ -183,8 +187,30 @@ builtin_echo(struct cmd *cmd)
 int
 builtin_help(struct cmd *cmd)
 {
-    write(0, __manual_README_md, __manual_README_md_len);
-    cmd->rc = 0;
+    pid_t pid;
+    int is_child;
+    int status;
+    FILE *temp_fptr;
+    int success;
+    char *temp_file = "/tmp/myshell-help";
+
+    temp_fptr = fopen(temp_file, "w");
+    fwrite(__manual_README_md, 1, __manual_README_md_len, temp_fptr);
+    fclose(temp_fptr);
+    pid = fork();
+    is_child = pid == 0;
+    if (is_child) {
+        /* set parent=<path to shell executable> */
+        setenv("parent", path_to_shell, 0);
+        execvp("more", (char *[]){"more", temp_file, NULL});
+        perror("more");
+        exit(1); /* child exits */
+    } else {
+        cmd->pid = pid;
+        waitpid(pid, &status, 0);
+        cmd->rc = status;
+    }
+
     return 0;
 }
 

@@ -11,12 +11,14 @@
 #include "token.h"
 #include "lib.h"
 #include "parser.h"
+#include "manual.h"
 
 /*
  * TODO: add io redirection here
  */
 
 extern char **environ;
+extern const char *manual_README_md;
 
 builtin builtins[] = {
     {"cd", builtin_cd},
@@ -24,7 +26,7 @@ builtin builtins[] = {
     {"dir", builtin_dir},
     {"environ", builtin_environ},
     {"echo", builtin_echo},
-    {"help", 0},
+    {"help", builtin_help},
     {"pause", builtin_pause},
     {"quit", builtin_quit},
     {0, 0},
@@ -37,6 +39,7 @@ get_builtin(char *builtin_name)
     int match_found;
 
     builtin_iterator = builtins;
+    // write(0, __manual_README_md, __manual_README_md_len);
     for (builtin *builtin_iterator = builtins; *(int *)builtin_iterator; builtin_iterator += 1) {
         match_found = !strcmp(builtin_iterator->name, builtin_name);
         if (match_found) {
@@ -120,6 +123,7 @@ builtin_dir(struct cmd *cmd)
     /* prefix command */
     vec_push_back(char *, new_command, capacity, length, "ls");
     vec_push_back(char *, new_command, capacity, length, "-la");
+    vec_push_back(char *, new_command, capacity, length, "--color=always");
 
     /* copy the end as the old command */
     for (int i = 1; i < cmd->argc; i++) {
@@ -176,7 +180,13 @@ builtin_echo(struct cmd *cmd)
     return 0;
 }
 
-// int builtin_help(struct cmd *cmd);
+int
+builtin_help(struct cmd *cmd)
+{
+    write(0, __manual_README_md, __manual_README_md_len);
+    cmd->rc = 0;
+    return 0;
+}
 
 int
 builtin_pause(struct cmd *cmd)

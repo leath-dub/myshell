@@ -355,7 +355,7 @@ cleancmd(struct cmd *c)
     int flags;
     int cmd_is_null;
 
-    cmd_is_null = c == NULL || c->argv == NULL;
+    cmd_is_null = c == NULL;
     if (cmd_is_null) {
         return 1;
     }

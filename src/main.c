@@ -77,7 +77,6 @@ shell()
             fprintf(stderr, "exited [%d]\n", cmd->rc);
             temp = cmd->rc;
             cleancmd(cmd);
-            // exit(cmd->rc); /* propagate return code */
             return temp;
         }
 

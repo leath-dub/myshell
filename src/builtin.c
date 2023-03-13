@@ -183,33 +183,42 @@ builtin_echo(struct cmd *cmd)
     return 0;
 }
 
+/* https://www.geeksforgeeks.org/pipe-system-call/ */
 int
 builtin_help(struct cmd *cmd)
 {
     pid_t pid;
     int is_child;
     int status;
-    FILE *temp_fptr;
-    int success;
-    char *temp_file = "/tmp/myshell-help";
+    int manual_page_pipe[2];
+    int manual_writer;
+    int manual_reader;
 
-    /* we create a temp file to write are buffer contents to */
-    temp_fptr = fopen(temp_file, "w");
-    fwrite(__manual_README_md, 1, __manual_README_md_len, temp_fptr);
-    fclose(temp_fptr);
+    pipe(manual_page_pipe);
+    manual_reader = manual_page_pipe[0];
+    manual_writer = manual_page_pipe[1];
 
     /* fork more with that temp file as argument */
     pid = fork();
     is_child = pid == 0;
     if (is_child) {
+        close(manual_writer); /* child only needs reader */
+        dup2(manual_reader, STDIN_FILENO);
+        close(manual_reader); /* no need anymore */
+
         /* set parent=<path to shell executable> */
         setenv("parent", path_to_shell, 0);
-        execvp("more", (char *[]){"more", temp_file, NULL});
+        execvp("more", (char *[]){"more", NULL});
         perror("more");
         exit(1); /* child exits */
     } else {
+        close(manual_reader); /* child needs reader */
+        write(manual_writer, __manual_README_md, __manual_README_md_len);
+        close(manual_writer);
+
         cmd->pid = pid;
-        waitpid(pid, &status, 0);
+        waitpid(pid, &status, 0); /* wait for child */
+        fflush(stdin);
         cmd->rc = status;
     }
 

@@ -97,8 +97,12 @@ handle_interrupt(int sigint)
     system("stty echo icanon"); /* pause disables line buffering, so we make
                                    sure it doesn't keep echo off and cannonical
                                    mode on */
+
     if (cmd) {
         kill(cmd->pid, SIGINT); /* kill child */
         printf("killed [%d]\n", cmd->pid);
+        return;
     }
+
+    shell(); /* else redraw if empty */
 }

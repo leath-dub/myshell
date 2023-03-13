@@ -21,7 +21,6 @@
  */
 
 extern char **environ;
-extern const char *manual_README_md;
 extern char *path_to_shell;
 
 builtin builtins[] = {
@@ -194,9 +193,12 @@ builtin_help(struct cmd *cmd)
     int success;
     char *temp_file = "/tmp/myshell-help";
 
+    /* we create a temp file to write are buffer contents to */
     temp_fptr = fopen(temp_file, "w");
     fwrite(__manual_README_md, 1, __manual_README_md_len, temp_fptr);
     fclose(temp_fptr);
+
+    /* fork more with that temp file as argument */
     pid = fork();
     is_child = pid == 0;
     if (is_child) {

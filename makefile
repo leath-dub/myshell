@@ -18,20 +18,24 @@ defines = -Ddebug
 debugflag = -g$(debug)
 endif
 
-all: manual $(bin)
+all: bin manual $(bin)
 
 %.o:
 	$(CC) $(debugflag) -c $(src) $(cflags) $(defines) $(optimize)
 
 $(bin): $(obj)
-	$(CC) $(debugflag) -o $@ $^ $(ldflags) $(cflags) $(optimize)
+	$(CC) $(debugflag) -o bin/$@ $^ $(ldflags) $(cflags) $(optimize)
 
 clean:
 	@echo
 	@echo "-- clean build --"
 	@echo
+	rm -f bin/myshell
 	rm -f $(bin)
 	rm -f $(obj)
+
+bin:
+	mkdir bin
 
 # manual copy hook, uses xxd to copy manual into char buf in manual.h
 manual:
@@ -40,4 +44,4 @@ manual:
 watch:
 	echo $(src) $(headers) makefile | tr ' ' '\n' | entr make clean all CC=gcc
 
-.PHONY: all myshell clean manual watch
+.PHONY: all myshell clean bin manual watch

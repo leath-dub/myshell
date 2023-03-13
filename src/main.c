@@ -101,6 +101,7 @@ handle_interrupt(int sigint)
     if (cmd) {
         kill(cmd->pid, SIGINT); /* kill child */
         printf("killed [%d]\n", cmd->pid);
+        signal(SIGINT, handle_interrupt); /* reset the signal handler */
         return;
     }
 

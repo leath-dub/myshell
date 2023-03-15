@@ -34,11 +34,13 @@ parsearg(char *start, size_t length)
 char **
 parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
 {
-    int invalid;
     int argument_count;
     size_t length;
     size_t capacity;
     char **argv;
+    char *argument;
+    char *possible_argument;
+    char *copy_end;
 
     if (start == end) {
         return NULL;
@@ -63,26 +65,28 @@ parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
         return NULL;
     }
 
-    char *s = copy;
-    char *copy_end = copy + strlen(copy);
-    char *ret = s;
+    argument = copy;
+    copy_end = copy + strlen(copy);
+    possible_argument = argument;
     argument_count = 0;
     loop {
-        ret = parsearg(s, copy_end - ret + 1);
-        vec_push_back(char *, argv, capacity, length, s);
-        s = ret;
-        if (ret == copy_end) break;
+        possible_argument = parsearg(argument, copy_end - possible_argument + 1);
+        vec_push_back(char *, argv, capacity, length, argument); /* add argument to arg vectory */
+        argument = possible_argument;
+        if (possible_argument == copy_end) break;
         argument_count += 1;
+
+        /* I set a max argument as I don't want certain input to
+         * force a infinate allocation loop */
         if (argument_count >= MAX_ARG) {
             warn("reached maximum argument limit: %d\n", MAX_ARG);
             break;
         }
     }
-    vec_push_back(char *, argv, capacity, length, 0); // null terminate
+    vec_push_back(char *, argv, capacity, length, 0); /* null terminate */
 
 
-    /* make sure no NULL ptrs */
-    if (_length) *_length = length - 1;
-    if (_capacity) *_capacity = capacity;
+    if (_length != NULL) *_length = length - 1;
+    if (_capacity != NULL) *_capacity = capacity;
     return argv;
 }

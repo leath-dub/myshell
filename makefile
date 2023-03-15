@@ -9,7 +9,7 @@ obj = main.o parser.o token.o lib.o command.o prompt.o builtin.o
 headers = src/parser.h src/token.h src/command.h src/lib.h src/prompt.h src/builtin.h src/manual.h
 
 cflags = $(INCS) -Wall -pedantic -std=c99
-ldflags =
+ldflags = -lc
 optimize = -O3
 
 ifdef debug
@@ -42,6 +42,6 @@ manual:
 	xxd -i ./manual/README.md > ./src/manual.h
 
 watch:
-	echo $(src) $(headers) makefile | tr ' ' '\n' | entr make clean all CC=gcc
+	echo $(src) $(headers) makefile | tr ' ' '\n' | entr make clean all
 
 .PHONY: all myshell clean bin manual watch

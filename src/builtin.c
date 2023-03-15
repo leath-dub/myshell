@@ -276,6 +276,9 @@ builtin_help(struct cmd *cmd)
     pid = fork();
     is_child = pid == 0;
     if (is_child) {
+        /* we still need to allow output redirection */
+        if (bin_isset_flag(cmd->flags, REDRO)) dup2(cmd->fdout, STDOUT_FILENO);
+
         close(manual_writer); /* child only needs reader */
         dup2(manual_reader, STDIN_FILENO);
         close(manual_reader); /* no need anymore */

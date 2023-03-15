@@ -8,6 +8,10 @@
 #include <sys/wait.h>
 #include <err.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "parser.h"
 #include "command.h"

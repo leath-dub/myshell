@@ -16,10 +16,6 @@
 #include "parser.h"
 #include "manual.h"
 
-/*
- * TODO: add io redirection here
- */
-
 extern char **environ;
 extern char *path_to_shell;
 
@@ -38,11 +34,8 @@ builtin builtins[] = {
 builtin *
 get_builtin(char *builtin_name)
 {
-    builtin *builtin_iterator;
     int match_found;
 
-    builtin_iterator = builtins;
-    // write(0, __manual_README_md, __manual_README_md_len);
     for (builtin *builtin_iterator = builtins; *(int *)builtin_iterator; builtin_iterator += 1) {
         match_found = !strcmp(builtin_iterator->name, builtin_name);
         if (match_found) {
@@ -67,7 +60,7 @@ builtin_cd(struct cmd *cmd)
     argc = cmd->argc;
     argv = cmd->argv;
 
-    argument_given = cmd->argc > 1;
+    argument_given = argc > 1;
     if (!argument_given) {
         dprintf(cmd->fdout, "current: %s\n", getenv("PWD"));
         cmd->rc = 0;
@@ -183,7 +176,8 @@ builtin_echo(struct cmd *cmd)
     return 0;
 }
 
-/* https://www.geeksforgeeks.org/pipe-system-call/ */
+/* ref: https://www.geeksforgeeks.org/pipe-system-call/
+ * this helped a lot */
 int
 builtin_help(struct cmd *cmd)
 {
@@ -229,18 +223,23 @@ int
 builtin_pause(struct cmd *cmd)
 {
     char char_from_user;
-    size_t input_message_length;
     const char *input_message = "Press enter to continue...";
 
 
     dprintf(cmd->fdout, "%s", input_message);
 
+    /* below sets canonical mode in the terminal
+     * this disables input buffering so we can
+     * take characters as the user enters them */
     system("stty -echo -icanon");
     loop {
-        if (read(cmd->fdin, &char_from_user, 1) == 1) {
+        if (read(cmd->fdin, &char_from_user, 1) == -1) {
+            perror("read");
+            system("stty echo icanon"); /* disable cannocial mode */
+            return -1;
         }
         if (char_from_user == '\n' && char_from_user != EOF) {
-            system("stty echo icanon");
+            system("stty echo icanon"); /* disable cannocial mode */
             break;
         }
     }
@@ -254,6 +253,9 @@ int
 builtin_quit(struct cmd *cmd)
 {
     cmd->rc = 0;
-    return exit_quit;
+    return exit_quit; /* exit_quit is an integer outside of range of a
+                         8 bit process exit status, just allows the
+                         caller to distinguish between failed program
+                         execution and request to quit */
 }
 

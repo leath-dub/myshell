@@ -117,7 +117,7 @@ shell()
         run_status = runcmd(cmd);
         if (run_status == exit_quit) {
             fprintf(stderr, "exited [%d]\n", cmd->rc);
-            temp = cmd->rc;
+            temp = cmd->rc; /* store status code before cmd struct is freed */
             cleancmd(cmd);
             return temp;
         }

@@ -73,11 +73,6 @@ struct cmd {
     char **argv;
 };
 
-int parseio(struct cmd *c, char *start, char *match, size_t match_length, char *end, int flags, int type);
-int parsewrite(struct cmd *c, char *start, char *match, size_t match_length, char *end);
-int parseread(struct cmd *c, char *start, char *match, size_t match_length, char *end);
-int parseappend(struct cmd *c, char *start, char *match, size_t match_length, char *end);
-int parseback(struct cmd *c, char *start, char *match, size_t match_length, char *end);
 int getcmd(int mode, FILE *stream, char *buf, size_t bufsz, size_t *read);
 struct cmd *parsecmd(char *parseme, size_t length);
 int runcmd(struct cmd *c);

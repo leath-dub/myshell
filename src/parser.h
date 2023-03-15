@@ -28,9 +28,14 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 
 #ifndef PARSER_H
 #define PARSER_H
+#include "command.h"
 
 void parser_parse_line(char *raw_input, int length);
 char **parseargs(char *start, char *end, size_t *_length, size_t *_capacity);
+int parseio(struct cmd *c, char *start, char *match, size_t match_length, char *end, int flags, int type);
+int parsewrite(struct cmd *c, char *start, char *match, size_t match_length, char *end);
+int parseread(struct cmd *c, char *start, char *match, size_t match_length, char *end);
+int parseappend(struct cmd *c, char *start, char *match, size_t match_length, char *end);
 
 /* strings */
 #define STR_DOUBLE_QUOTE_OPEN 0x1

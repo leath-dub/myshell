@@ -26,10 +26,13 @@ DCU Academic Integrity and Plagiarism Policy (available at
 http://www.dcu.ie/registry/examinations/index.shtml).
 */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <err.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "parser.h"
 #include "lib.h"
@@ -135,4 +138,113 @@ parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
     if (_length != NULL) *_length = length - 1;
     if (_capacity != NULL) *_capacity = capacity;
     return argv;
+}
+
+/**
+ * [[helper]] Return reference to correct fd based on the type of command
+ *
+ * @param struct c - command to reference
+ * @param int type - type of command
+ * @returns int * - reference to file descriptor
+ */
+static int *
+getcmdfd(struct cmd *c, int type)
+{
+    switch(type) {
+        case REDRO:
+            return &c->fdout;
+        case REDRI:
+            return &c->fdin;
+    }
+    return 0;
+}
+
+/**
+ * Abstract function for parseing io redirection, could be "stdout write",
+ * "stdout append" or "stdin read" - respective child functions parsewrite,
+ * parseappend and parseread. It opens file with flags.
+ *
+ * @param struct c - command to write open file descriptors to
+ * @param string start - start pointer of command
+ * @param string match - pointer to end of matched token (">", "<" or ">>")
+ * @param size_t match_length - length of matched token
+ * @param string end - pointer to end of command (could be pointing at next
+ *                     matched token or end of commandline)
+ * @param int flags - open flags : flags passed to open function, e.g. O_RDWR
+ * @param int type - type of io redirection (REDRO or REDRI)
+ * @returns int - return code
+ */
+int
+parseio(struct cmd *c, char *start, char *match, size_t match_length, char *end, int flags, int type)
+{
+    int *fd;
+    char *rhs;
+
+    fd = getcmdfd(c, type);
+    if (!fd) return -1;
+
+    if (bin_isset_flag(c->flags, type)) {
+        close(*fd);
+    }
+    bin_set_flag(c->flags, type);
+
+    /* file on the right hand side of match */
+    if (match == end) {
+        fprintf(stderr, "invalid right operand\n");
+        return 0;
+    }
+    rhs = strip(match + 1, end, " \t"); // strip leading/trailing space
+
+    *fd = open(rhs, flags, 0666);
+    if (*fd < 0) {
+        perror(rhs);
+
+        /* clean up */
+        bin_unset_flag(c->flags, type);
+        *fd = 0; // when runcmd sees 0, it sais "inherit parent fd's"
+        free(rhs);
+        return -1;
+    }
+    free(rhs);
+
+    /* echo 'hello' >> world  # this is how you get lhs operand
+     * ^           ^ ^
+     * start       | match
+     *             match - match_length
+     */
+    parseexec(c, start, match - match_length);
+    return 0;
+}
+
+/**
+ * Utilizes parseio with write flags for open
+ *
+ * ... see parseio params up to `end`
+ */
+int
+parsewrite(struct cmd *c, char *start, char *match, size_t match_length, char *end)
+{
+    return parseio(c, start, match, match_length, end, O_CREAT | O_WRONLY | O_TRUNC, REDRO);
+}
+
+/**
+ * Utilizes parseio with read flags for open
+ *
+ * ... see parseio params up to `end`
+ */
+int
+parseread(struct cmd *c, char *start, char *match, size_t match_length, char *end)
+{
+    return parseio(c, start, match, match_length, end, O_RDONLY, REDRI);
+}
+
+/**
+ * Utilizes parseio with append flags for open
+ *
+ * ... see parseio params up to `end`
+ */
+int
+parseappend(struct cmd *c, char *start, char *match, size_t match_length, char *end)
+{
+    return parseio(c, start, match, match_length, end, O_WRONLY | O_CREAT | O_APPEND, REDRO);
 }

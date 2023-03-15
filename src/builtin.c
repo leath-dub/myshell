@@ -31,6 +31,12 @@ builtin builtins[] = {
     {0, 0},
 };
 
+/**
+ * Returns builtin associated with name provide or null
+ *
+ * @param string builtin_name - query name of builtin
+ * @returns struct - reference to associated builtin
+ */
 builtin *
 get_builtin(char *builtin_name)
 {
@@ -46,6 +52,13 @@ get_builtin(char *builtin_name)
     return NULL;
 }
 
+/**
+ * Cd command changes current directory to first argument or prints current
+ * if no argument provided
+ *
+ * @param struct cmd - command
+ * @returns int - status code
+ */
 int
 builtin_cd(struct cmd *cmd)
 {
@@ -54,6 +67,8 @@ builtin_cd(struct cmd *cmd)
     char *directory;
     int argument_given;
     int directory_ok;
+    int failed_to_change_directory;
+    int path_invalid;
     char resolved_path[PATH_MAX];
     const int overwrite = 1;
 
@@ -75,25 +90,51 @@ builtin_cd(struct cmd *cmd)
         return 1;
     }
 
-    /* TODO: handle errors */
-    realpath(directory, resolved_path);
+    path_invalid = realpath(directory, resolved_path) == NULL;
+    if (path_invalid) {
+        perror(directory);
+        cmd->rc = 1;
+        return 1;
+    }
+
     setenv("OLDPWD", getenv("PWD"), overwrite);
     setenv("PWD", resolved_path, overwrite);
-    chdir(resolved_path);
+
+    failed_to_change_directory = chdir(resolved_path) == -1;
+    if (failed_to_change_directory) {
+        perror(resolved_path);
+        cmd->rc = 1;
+        return 1;
+    }
 
     cmd->rc = 0;
     return 0;
 }
 
+/**
+ * Clears the screen
+ *
+ * @param struct cmd - command
+ * @returns int - status code
+ */
 int
 builtin_clr(struct cmd *cmd)
 {
+    /* \033[2J tells terminal to clear screen
+     * \033[H tells terminal to position cursor to home
+     */
     dprintf(cmd->fdout, "\033[2J\033[H");
 
     cmd->rc = 0;
     return 0;
 }
 
+/**
+ * Alias to ls -la, lists directory provided or current directory
+ *
+ * @param struct cmd - command
+ * @returns int - status code
+ */
 int
 builtin_dir(struct cmd *cmd)
 {
@@ -102,14 +143,6 @@ builtin_dir(struct cmd *cmd)
     size_t length;
     size_t capacity;
     int any_arguments;
-
-    any_arguments = cmd->argc > 1;
-    if (!any_arguments) {
-        /* print the current path if no arguments */
-        dprintf(cmd->fdout, "current: %s\n", getenv("PWD"));
-        cmd->rc = 0;
-        return 0;
-    }
 
     /* allocate space for new command */
     length = 0;
@@ -137,6 +170,12 @@ builtin_dir(struct cmd *cmd)
     return 0;
 }
 
+/**
+ * Outputs environment variables to console
+ *
+ * @param struct cmd - command
+ * @returns int - status code
+ */
 int
 builtin_environ(struct cmd *cmd)
 {
@@ -153,6 +192,12 @@ builtin_environ(struct cmd *cmd)
     return 0;
 }
 
+/**
+ * Output arguments newline separated
+ *
+ * @param struct cmd - command
+ * @returns int - status code
+ */
 int
 builtin_echo(struct cmd *cmd)
 {
@@ -176,8 +221,15 @@ builtin_echo(struct cmd *cmd)
     return 0;
 }
 
-/* ref: https://www.geeksforgeeks.org/pipe-system-call/
- * this helped a lot */
+/**
+ * Outputs help info
+ *
+ * @param struct cmd - command
+ * @returns int - status code
+ *
+ * @ref: https://www.geeksforgeeks.org/pipe-system-call/
+ * this helped a lot
+ */
 int
 builtin_help(struct cmd *cmd)
 {
@@ -219,6 +271,12 @@ builtin_help(struct cmd *cmd)
     return 0;
 }
 
+/**
+ * Pauses execution until user presses enter
+ *
+ * @param struct cmd - command
+ * @returns int - status code
+ */
 int
 builtin_pause(struct cmd *cmd)
 {
@@ -249,6 +307,12 @@ builtin_pause(struct cmd *cmd)
     return 0;
 }
 
+/**
+ * Exits the shell gracefully
+ *
+ * @param struct cmd - command
+ * @returns int - status code
+ */
 int
 builtin_quit(struct cmd *cmd)
 {
@@ -258,4 +322,3 @@ builtin_quit(struct cmd *cmd)
                          caller to distinguish between failed program
                          execution and request to quit */
 }
-

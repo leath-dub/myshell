@@ -8,6 +8,13 @@
 
 #define MAX_ARG 64
 
+/**
+ * Parses single argument (similar to strtok)
+ *
+ * @param string start - string to parse argument from
+ * @param size_t length - length of string
+ * @returns string - reference address after last tab or space matched
+ */
 char *
 parsearg(char *start, size_t length)
 {
@@ -31,6 +38,17 @@ parsearg(char *start, size_t length)
     return &start[length - 1];
 }
 
+/**
+ * Parses all arguments in slice into argument vector
+ *
+ * @param string start - start of string slice to parse
+ * @param string end - end of string slice to parse
+ * @param size_t *_length - pointer to writable memory address, where the
+ *                          number of arguments will be written to
+ * @param size_t *_capacity - pointer to writable memory address, where the
+ *                            capacity of the argument array will be written
+ * @returns string[] - array of arguments
+ */
 char **
 parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
 {
@@ -76,7 +94,7 @@ parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
         if (possible_argument == copy_end) break;
         argument_count += 1;
 
-        /* I set a max argument as I don't want certain input to
+        /* We set a max argument as we don't want certain input to
          * force a infinate allocation loop */
         if (argument_count >= MAX_ARG) {
             warn("reached maximum argument limit: %d\n", MAX_ARG);

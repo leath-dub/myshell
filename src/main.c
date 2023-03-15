@@ -10,6 +10,9 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 /* Main commands
  * - getcmd: 
@@ -30,6 +33,11 @@ static FILE *stream;
 static struct cmd *cmd;
 char *path_to_shell;
 
+/**
+ * Main - entry point, sets environment and 
+ *
+ * @returns int return code
+ */
 int
 main(int argc, char **argv)
 {
@@ -50,6 +58,12 @@ main(int argc, char **argv)
     return shell();
 }
 
+/**
+ * Runs commandline - reads input, parses it and executes based on parsed
+ * command.
+ *
+ * @returns int return code
+ */
 int
 shell()
 {
@@ -89,16 +103,22 @@ shell()
     return 0;
 }
 
+/**
+ * Handler for SIGINT (^C), if child is running, kill it, otherwise
+ * reset command line
+ *
+ * @param int sigint - unix signal
+ */
 void
 handle_interrupt(int sigint)
 {
     puts("");
-    system("stty echo icanon"); /* pause disables line buffering, so we make
+    system("stty echo icanon"); /* pause builtin disables line buffering, so we make
                                    sure it doesn't keep echo off and cannonical
                                    mode on */
 
     if (cmd) {
-        kill(cmd->pid, SIGINT); /* kill child */
+        kill((pid_t)cmd->pid, (int)SIGINT); /* kill child */
         printf("killed [%d]\n", cmd->pid);
         signal(SIGINT, handle_interrupt); /* reset the signal handler */
         return;

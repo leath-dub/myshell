@@ -10,6 +10,9 @@ drawer prompt_expand_character[] = {
     ['p'] = get_current_path,
 };
 
+/**
+ * [[helper]] draws the current path
+ */
 static void
 get_current_path()
 {
@@ -18,6 +21,9 @@ get_current_path()
 }
 
 
+/**
+ * Draws the prompt to the console
+ */
 void
 draw_prompt()
 {
@@ -35,6 +41,7 @@ draw_prompt()
     prompt_unformatted = getenv("prompt");
     prompt_unformatted_length = strlen(prompt_unformatted);
 
+    /* look for special character and execute associated function */
     for (size_t i = 0; i < prompt_unformatted_length - 1; i += 1) {
         character = prompt_unformatted[i];
         if (character == SPECIAL_PROMPT_CHARACTER) {
@@ -53,4 +60,3 @@ draw_prompt()
     last_character = prompt_unformatted[prompt_unformatted_length - 1];
     putchar(last_character);
 }
-

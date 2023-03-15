@@ -55,7 +55,6 @@ struct cmd *parsecmd(char *parseme, size_t length);
 int runcmd(struct cmd *c);
 void printcmd(struct cmd *c);
 int parseexec(struct cmd *c, char *start, char *end);
-int *getcmdfd(struct cmd *c, int type);
 int cleancmd(struct cmd *c);
 
 typedef int (*tok_fn)(struct cmd *, char *, char *, size_t, char *);

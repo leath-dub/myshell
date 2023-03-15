@@ -37,6 +37,15 @@ static const tok_map_t tokens[] = {
     {0, 0, 0},
 };
 
+/**
+ * Uses parseargs to "argify" the command into something you can
+ * execute with e.g. exec
+ *
+ * @param struct c - command structure to write parsed command to
+ * @param string start - start pointer of command (part of slice)
+ * @param string end - end pointer of command (part of slice)
+ * @returns int - return code
+ */
 int
 parseexec(struct cmd *c, char *start, char *end)
 {
@@ -48,8 +57,14 @@ parseexec(struct cmd *c, char *start, char *end)
     return 0;
 }
 
-/* return ref to fd field based on given type */
-int *
+/**
+ * [[helper]] Return reference to correct fd based on the type of command
+ *
+ * @param struct c - command to reference
+ * @param int type - type of command
+ * @returns int * - reference to file descriptor
+ */
+static int *
 getcmdfd(struct cmd *c, int type)
 {
     switch(type) {
@@ -61,6 +76,21 @@ getcmdfd(struct cmd *c, int type)
     return 0;
 }
 
+/**
+ * Abstract funtion for parseing io redirection, could be "stdout write",
+ * "stdout append" or "stdin read" - respective child functions parsewrite,
+ * parseappend and parseread. It opens file with flags.
+ *
+ * @param struct c - command to write open file descriptors to
+ * @param string start - start pointer of command
+ * @param string match - pointer to end of matched token (">", "<" or ">>")
+ * @param size_t match_length - length of matched token
+ * @param string end - pointer to end of command (could be pointing at next
+ *                     matched token or end of commandline)
+ * @param int flags - open flags : flags passed to open function, e.g. O_RDWR
+ * @param int type - type of io redirection (REDRO or REDRI)
+ * @returns int - return code
+ */
 int
 parseio(struct cmd *c, char *start, char *match, size_t match_length, char *end, int flags, int type)
 {
@@ -103,35 +133,47 @@ parseio(struct cmd *c, char *start, char *match, size_t match_length, char *end,
     return 0;
 }
 
+/**
+ * Utilizes parseio with write flags for open
+ *
+ * ... see parseio params up to `end`
+ */
 int
 parsewrite(struct cmd *c, char *start, char *match, size_t match_length, char *end)
 {
     return parseio(c, start, match, match_length, end, O_CREAT | O_WRONLY | O_TRUNC, REDRO);
 }
 
+/**
+ * Utilizes parseio with read flags for open
+ *
+ * ... see parseio params up to `end`
+ */
 int
 parseread(struct cmd *c, char *start, char *match, size_t match_length, char *end)
 {
     return parseio(c, start, match, match_length, end, O_RDONLY, REDRI);
 }
 
+/**
+ * Utilizes parseio with append flags for open
+ *
+ * ... see parseio params up to `end`
+ */
 int
 parseappend(struct cmd *c, char *start, char *match, size_t match_length, char *end)
 {
     return parseio(c, start, match, match_length, end, O_WRONLY | O_CREAT | O_APPEND, REDRO);
 }
 
-int
-parseback(struct cmd *c, char *start, char *match, size_t match_length, char *end)
-{
-    bin_set_flag(c->flags, BACK);
-
-    /* change the character to a space, so it is ignored */
-    *match = ' ';
-
-    return 0;
-}
-
+/**
+ * Searches command line for '&' that is not in string and sets background
+ * flag
+ *
+ * @param string line - command
+ * @param size_t length - length of command
+ * @returns int - return code
+ */
 int
 checkback(char *line, size_t length)
 {
@@ -152,12 +194,25 @@ checkback(char *line, size_t length)
     return back;
 }
 
+/**
+ * [[helper]] Shifts 2 item queue and inserts item at first position
+ *
+ * @param int item - item to add to queue
+ * @param int[] queue - the 2 item queue
+ */
 static void
 push_to_position_queue(int item, int *queue) {
     queue[1] = queue[0];
     queue[0] = item;
 }
 
+/**
+ * [[helper]] Shifts 2 item tok_map_t queue and inserts item at first
+ * position
+ *
+ * @param struct item - item to add to queue
+ * @param struct[] queue - the 2 item queue
+ */
 static void
 push_to_token_queue(const tok_map_t *item, const tok_map_t **queue)
 {
@@ -165,7 +220,14 @@ push_to_token_queue(const tok_map_t *item, const tok_map_t **queue)
     queue[0] = item;
 }
 
-/* function that processess from previous match to current match */
+/**
+ * Processess from previous match to current match
+ *
+ * @param struct cmd - command to pass to proccess_match
+ * @param string parseme - string to be processed/parsed
+ * @param struct[] token_queue - 2 item queue for storing matches
+ * @param int[] match_position_queue - 2 item queue for storing index of matches
+ */
 static void
 process_previous_match(struct cmd *cmd, char *parseme, const tok_map_t **token_queue, int *match_position_queue)
 {
@@ -186,7 +248,15 @@ process_previous_match(struct cmd *cmd, char *parseme, const tok_map_t **token_q
      */
 }
 
-/* function to process any match remaining to the end of the string */
+/**
+ * Process any match remaining up to the end of the string
+ *
+ * @param struct cmd - command to pass to proccess_match
+ * @param string parseme - string to be processed/parsed
+ * @param size_t parseme_length - length of string to be processed, parseme
+ * @param struct[] token_queue - 2 item queue for storing matches
+ * @param int[] match_position_queue - 2 item queue for storing index of matches
+ */
 static void
 process_any_match_left(struct cmd *cmd, char *parseme, size_t parseme_length, const tok_map_t **token_queue, int *match_position_queue)
 {
@@ -202,6 +272,13 @@ process_any_match_left(struct cmd *cmd, char *parseme, size_t parseme_length, co
     process_match(cmd, start, current_match, current_match_length, end);
 }
 
+/**
+ * Parses string into a command structure
+ *
+ * @param string parseme - raw command string to be parsed
+ * @param size_t length - length of command (parseme)
+ * @returns struct - command structure
+ */
 struct cmd *
 parsecmd(char *parseme, size_t length)
 {
@@ -229,8 +306,7 @@ parsecmd(char *parseme, size_t length)
      * we also Iterate through the line, viewing each point as a substring from
      * i to the end. This substring is then checked against the special
      * tokens
-     */ // TODO all parsing should be done in parser.c
-        // TODO ignore things in strings
+     */
 
     memset(match_position_queue, -1, 2 * sizeof(int));
     memset(token_queue, 0, 2 * sizeof(tok_map_t *));
@@ -265,12 +341,18 @@ parsecmd(char *parseme, size_t length)
         process_any_match_left(cmd, parseme, length, token_queue, match_position_queue);
     }
 
-    // may not have exec yet, if no match was found e.g
+    /* may not have exec yet, if no match was found e.g */
     parseexec(cmd, parseme, parseme + length - 1);
 
     return cmd;
 }
 
+/**
+ * Runs command
+ *
+ * @param struct c - command to be run
+ * @returns int - return code of child that is run or error
+ */
 int
 runcmd(struct cmd *c)
 {
@@ -281,13 +363,14 @@ runcmd(struct cmd *c)
     if (!bin_isset_flag(c->flags, EXEC)) return 0; // nothing to do
     if (!c->argv) return -1;
 
+    /* check if it is a builtin */
     builtin_cmd = get_builtin(c->argv[0]);
     if (builtin_cmd) {
-        return builtin_cmd->execute(c);
+        return builtin_cmd->execute(c); /* run that if so */
     }
 
     pid = fork();
-    if (pid == 0) { // child
+    if (pid == 0) { /* child */
         if (bin_isset_flag(c->flags, REDRI)) dup2(c->fdin, STDIN_FILENO);
         if (bin_isset_flag(c->flags, REDRO)) dup2(c->fdout, STDOUT_FILENO);
 
@@ -296,13 +379,13 @@ runcmd(struct cmd *c)
 
         execvp(c->argv[0], c->argv);
         perror(c->argv[0]);
-        exit(1); // child exits
+        exit(1); /* child exits */
     } else {
-        c->pid = pid; // set child pid
+        c->pid = pid; /* set child pid */
         if (!bin_isset_flag(c->flags, BACK)) { // run in background
             waitpid(pid, &status, 0);
             c->rc = status;
-        } // else don't wait, run in background
+        } /* else don't wait, run in background */
     }
 
     return 0;
@@ -310,6 +393,11 @@ runcmd(struct cmd *c)
 
 #define print_if_true(cond, ...) if (cond) printf(__VA_ARGS__);
 
+/**
+ * Outputs command to console (good for debugging)
+ *
+ * @param struct c - command to print
+ */
 void
 printcmd(struct cmd *c)
 {
@@ -353,6 +441,13 @@ printcmd(struct cmd *c)
 
 }
 
+/**
+ * Cleans the command, i.e. closes open file descriptors and frees up any
+ * memory
+ *
+ * @param struct c - command to clean
+ * @returns int - return code
+ */
 int
 cleancmd(struct cmd *c)
 {
@@ -383,6 +478,19 @@ cleancmd(struct cmd *c)
     return 0;
 }
 
+/**
+ * Reads command from file stream into a buffer. Also draws prompt if
+ * in interactive mode
+ *
+ * @param int mode - read/execute mode (CMDINTER or CMDBATCH)
+ * @param file stream - stream to read from
+ * @param string buf - buffer to write read bytes to
+ * @param size_t bufsz - size of buffer
+ * @param size_t *bytes_read - pointer to bytes_read, caller should pass
+ *                             writable address, this will store how many
+ *                             bytes were read from stream
+ * @return int - return code
+ */
 int
 getcmd(int mode, FILE *stream, char *buf, size_t bufsz, size_t *bytes_read)
 {

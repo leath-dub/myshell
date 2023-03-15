@@ -8,6 +8,15 @@
 #include <err.h>
 #include <termios.h>
 
+/* Any uncategorized functions that are shared between files
+ * go here
+ */
+
+/**
+ * Do not exit gracefully, die !.
+ *
+ * @param string msg - message to explain your mortality
+ */
 void
 die(char *msg)
 {
@@ -15,6 +24,15 @@ die(char *msg)
     exit(1);
 }
 
+/**
+ * Removes any occurence of characters from start and end
+ * in string slice. Like the python strip
+ *
+ * @param string start - start of string slice
+ * @param string end - end of string slice
+ * @param string chars - characters to remove from ends
+ * @returns string - new string with characters removed
+ */
 char *
 strip(char *start, char *end, const char *chars)
 {
@@ -42,6 +60,12 @@ strip(char *start, char *end, const char *chars)
     return result;
 }
 
+/**
+ * Strcpy but guarded
+ *
+ * @param string s - string to copy
+ * @returns string - the new string
+ */
 char *
 str_alloc(const char *s)
 {
@@ -54,6 +78,12 @@ str_alloc(const char *s)
     return new;
 }
 
+/**
+ * Checks if string is empty
+ *
+ * @param string s - string to check
+ * @returns bool - is the string empty
+ */
 int
 empty(char *s)
 {

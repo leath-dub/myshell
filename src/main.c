@@ -82,7 +82,7 @@ main(int argc, char **argv)
 
     /* @ref https://man7.org/linux/man-pages/man3/setenv.3.html */
     setenv("shell", path_to_shell, 0);
-    setenv("prompt", "%p> ", 0); /* set default prompt */
+    setenv("prompt", "%p $ ", 0); /* set default prompt */
 
     mode = CMDINTER;
     if (argc > 1) {

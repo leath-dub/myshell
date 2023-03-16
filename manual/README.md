@@ -17,7 +17,7 @@ the background (see BACKGROUND).
 # IO REDIRECTION
 IO/(Input Output) redirection is the means to which a process's
 input and output can be altered, i.e. the behaviour and source
-of it's input and output.
+of it's input and output. [2]
 
 In a UNIX-like operating system files are the backbone interface
 for programs between each other, and programs and the kernel.
@@ -30,6 +30,7 @@ takes input from the user
 
 # REFERENCES
 [1] (POSIX shell)[https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html]
+[2] (IO redirection)[http://linuxcommand.org/lc3_lts0070.php]
 
 Cathal O'Grady, 21442084 - Operating Systems Project 1
 ca216/myshell

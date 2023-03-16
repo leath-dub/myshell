@@ -54,8 +54,6 @@ extern char **environ;
 /* from main.c */
 extern char *path_to_shell;
 
-/* TODO use open_memestream to store commandline buffer */
-
 /* Token map is used to map patterns to functions
  * token    token_l    proccess */
 static const tok_map_t tokens[] = {
@@ -289,6 +287,10 @@ runcmd(struct cmd *c)
         return builtin_cmd->execute(c); /* run that if so */
     }
 
+    /*
+    @ref https://man7.org/linux/man-pages/man2/fork.2.html
+    @ref from grahams lab 4/5 - https://loop.dcu.ie/mod/book/view.php?id=2054177&chapterid=433265
+    */
     pid = fork();
     if (pid == 0) { /* child */
         if (bin_isset_flag(c->flags, REDRI)) dup2(c->fdin, STDIN_FILENO);
@@ -297,6 +299,7 @@ runcmd(struct cmd *c)
         /* set parent=<path to shell executable> */
         setenv("parent", path_to_shell, 0);
 
+        /* @ref https://man7.org/linux/man-pages/man3/exec.3.html */
         execvp(c->argv[0], c->argv);
         perror(c->argv[0]);
         exit(1); /* child exits */

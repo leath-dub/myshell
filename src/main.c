@@ -42,6 +42,15 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 #include <sys/stat.h>
 #include <unistd.h>
 
+/*
+-- Note -- I heavily use manpages as documentation, I try to reference
+            them where necessary.
+
+   Nameing convention for core functions, getcmd, parsecmd and runcmd come
+   from the xv6 shell https://github.com/ag6288/XV6-Shell-Implementation/blob/master/shell.c
+   This was demonstrated in this video https://www.youtube.com/watch?v=ubt-UjcQUYg
+*/
+
 /* Main commands
  * - getcmd: 
  *      reads user input/batch line
@@ -70,6 +79,8 @@ int
 main(int argc, char **argv)
 {
     path_to_shell = argv[0];
+
+    /* @ref https://man7.org/linux/man-pages/man3/setenv.3.html */
     setenv("shell", path_to_shell, 0);
     setenv("prompt", "%p> ", 0); /* set default prompt */
 
@@ -77,7 +88,7 @@ main(int argc, char **argv)
     if (argc > 1) {
         stream = fopen(argv[1], "r");
         if (stream == NULL) {
-            perror(argv[1]);
+            perror(argv[1]); /* @ref https://man7.org/linux/man-pages/man3/perror.3.html */
             return 1;
         }
         mode = CMDBATCH;
@@ -103,8 +114,12 @@ shell()
     int temp;
 
     cmd = NULL;
-    signal(SIGINT, handle_interrupt);
+    if (signal(SIGINT, handle_interrupt) == SIG_ERR) {
+        perror("signal");
+        return 1;
+    }
 
+    /* @ref https://man7.org/linux/man-pages/man3/stdio.3.html */
     end_of_file = feof(stdin);
     cmd_is_valid = getcmd(mode, stream, line, SZ, &bytes_read) == 0;
     while (!end_of_file && cmd_is_valid) {
@@ -141,6 +156,8 @@ void
 handle_interrupt(int sigint)
 {
     puts("");
+
+    /* @ref https://man7.org/linux/man-pages/man1/stty.1.html */
     system("stty echo icanon"); /* pause builtin disables line buffering, so we make
                                    sure it doesn't keep echo off and cannonical
                                    mode on */

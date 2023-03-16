@@ -65,6 +65,7 @@ bin:
 	mkdir -p bin
 
 # manual copy hook, uses xxd to copy manual into char buf in manual.h
+# @ref https://linux.die.net/man/1/xxd
 manual:
 	xxd -i ./manual/README.md > ./src/manual.h
 

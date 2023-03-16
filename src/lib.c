@@ -102,6 +102,7 @@ str_alloc(const char *s)
         die("Failed call to calloc");
     }
 
+    /* @ref https://man7.org/linux/man-pages/man3/strcpy.3.html */
     strcpy(new, s);
     return new;
 }

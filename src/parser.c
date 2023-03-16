@@ -128,6 +128,7 @@ parseargs(char *start, char *end, size_t *_length, size_t *_capacity)
         /* We set a max argument as we don't want certain input to
          * force a infinate allocation loop */
         if (argument_count >= MAX_ARG) {
+            /* @ref (use of warn and err) https://git.codemadness.org/xscreenshot/file/xscreenshot.c.html */
             warn("reached maximum argument limit: %d\n", MAX_ARG);
             break;
         }
@@ -195,6 +196,7 @@ parseio(struct cmd *c, char *start, char *match, size_t match_length, char *end,
     }
     rhs = strip(match + 1, end, " \t"); // strip leading/trailing space
 
+    /* @ref https://man7.org/linux/man-pages/man2/openat.2.html */
     *fd = open(rhs, flags, 0666);
     if (*fd < 0) {
         perror(rhs);

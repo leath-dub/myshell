@@ -78,7 +78,7 @@ draw_prompt()
             in_range = format_character <= drawer_range;
 
             if (in_range) {
-                expander = prompt_expand_character[format_character];
+                expander = prompt_expand_character[(int)format_character];
                 if (expander) expander();
                 continue;
             }

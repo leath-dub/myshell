@@ -34,6 +34,9 @@ src = src/main.c src/parser.c src/token.c src/lib.c src/command.c src/prompt.c s
 obj = main.o parser.o token.o lib.o command.o prompt.o builtin.o
 headers = src/parser.h src/token.h src/command.h src/lib.h src/prompt.h src/builtin.h src/manual.h
 
+# using c99 for portability (also just used to it)
+# ansi C also gives better warnings for platform dependent
+# functions (if you have issues on your platform open an issue)
 cflags = $(INCS) -Wall -pedantic -std=c99
 ldflags = -lc
 optimize = -O3

@@ -35,6 +35,15 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 #include <signal.h>
 #include <fcntl.h>
 
+/* because we are using ansi C, setenv is platform dependent
+ * change this to your platform
+ */
+int setenv(const char *name, const char *value, int overwrite);
+/* realpath is also platform dependent */
+char *realpath(const char *restrict path, char *restrict resolved_path);
+/* dprintf also platform dependent */
+int dprintf(int fd, const char *restrict format, ...);
+
 #include "builtin.h"
 #include "token.h"
 #include "lib.h"
@@ -167,7 +176,6 @@ builtin_dir(struct cmd *cmd)
     struct cmd temp_command;
     size_t length;
     size_t capacity;
-    int any_arguments;
 
     /* allocate space for new command */
     length = 0;

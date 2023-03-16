@@ -31,6 +31,11 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 #include <sys/wait.h>
 #include <stdlib.h>
 
+/* because we are using ansi C, setenv is platform dependent
+ * change this to your platform
+ */
+int setenv(const char *name, const char *value, int overwrite);
+
 #include "parser.h"
 #include "command.h"
 #include "token.h"

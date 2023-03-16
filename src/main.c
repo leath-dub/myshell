@@ -28,6 +28,14 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 
 #include <signal.h>
 #include <stdlib.h>
+#include <aio.h>
+
+/* because we are using ansi C, setenv is platform dependent
+ * change this to your platform
+ */
+int setenv(const char *name, const char *value, int overwrite);
+/* likewise for kill function */
+int kill(pid_t pid, int sig);
 
 #include "parser.h"
 #include "lib.h"

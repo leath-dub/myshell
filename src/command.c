@@ -26,20 +26,10 @@ DCU Academic Integrity and Plagiarism Policy (available at
 http://www.dcu.ie/registry/examinations/index.shtml).
 */
 
-#include <stdio.h>
+#include <unistd.h>
 #include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <assert.h>
-#include <sys/types.h>
 #include <sys/wait.h>
-#include <err.h>
 #include <stdlib.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 #include "parser.h"
 #include "command.h"

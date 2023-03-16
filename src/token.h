@@ -29,7 +29,6 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include <unistd.h>
 #include "command.h"
 
 typedef struct {

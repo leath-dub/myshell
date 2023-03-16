@@ -47,7 +47,7 @@ endif
 all: bin manual $(bin)
 
 %.o:
-	$(CC) $(debugflag) -c $(src) $(cflags) $(defines) $(optimize)
+	$(CC) $(debugflag) -c $(src) $(ldflags) $(cflags) $(defines) $(optimize)
 
 $(bin): $(obj)
 	$(CC) $(debugflag) -o bin/$@ $^ $(ldflags) $(cflags) $(optimize)

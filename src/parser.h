@@ -28,6 +28,7 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 
 #ifndef PARSER_H
 #define PARSER_H
+
 #include "command.h"
 
 void parser_parse_line(char *raw_input, int length);

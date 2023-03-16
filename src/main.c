@@ -26,21 +26,13 @@ DCU Academic Integrity and Plagiarism Policy (available at
 http://www.dcu.ie/registry/examinations/index.shtml).
 */
 
-#include <stdio.h>
+#include <signal.h>
+#include <stdlib.h>
+
 #include "parser.h"
 #include "lib.h"
 #include "builtin.h"
 #include "command.h"
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 /*
 -- Note -- I heavily use manpages as documentation, I try to reference

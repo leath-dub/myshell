@@ -27,9 +27,8 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 */
 
 #include <stdint.h>
-#include <sys/types.h>
-#include <stdio.h>
 #include <aio.h>
+#include <stdio.h>
 
 #ifndef COMMAND_H
 #define COMMAND_H

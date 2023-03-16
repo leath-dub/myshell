@@ -29,14 +29,11 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <err.h>
 #include <linux/limits.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <spawn.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <sys/syscall.h>
 
 #include "builtin.h"
 #include "token.h"

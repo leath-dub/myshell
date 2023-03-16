@@ -29,8 +29,7 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 #ifndef LIB_H
 #define LIB_H
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <stddef.h>
 
 /* Generic Vector Macros */
 

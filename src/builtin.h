@@ -40,7 +40,6 @@ typedef struct {
     builtin_func execute;
 } builtin;
 
-
 builtin *get_builtin(char *builtin_name);
 int builtin_cd(struct cmd *cmd);
 int builtin_clr(struct cmd *cmd);

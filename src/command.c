@@ -285,7 +285,7 @@ runcmd(struct cmd *c)
 
     /*
     @ref https://man7.org/linux/man-pages/man2/fork.2.html
-    @ref from grahams lab 4/5 - https://loop.dcu.ie/mod/book/view.php?id=2054177&chapterid=433265
+    @ref from Graham's lab 4/5 - https://loop.dcu.ie/mod/book/view.php?id=2054177&chapterid=433265
     */
     pid = fork();
     if (pid == 0) { /* child */
@@ -293,12 +293,16 @@ runcmd(struct cmd *c)
         if (bin_isset_flag(c->flags, REDRO)) dup2(c->fdout, STDOUT_FILENO);
 
         /* set parent=<path to shell executable> */
-        // setenv("parent", path_to_shell, 0);
+        setenv("parent", path_to_shell, 0);
 
         /* @ref https://man7.org/linux/man-pages/man3/exec.3.html */
         execvp(c->argv[0], c->argv);
         perror(c->argv[0]);
-        exit(1); /* child exits */
+        exit(127); /* child exits */
+        /* posix standard sais 127 is used when command is not found
+         * @ref 2.8.2 Exit Status for Commands
+         * https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html
+         */
     } else {
         c->pid = pid; /* set child pid */
         if (!bin_isset_flag(c->flags, BACK)) { // run in background

@@ -24,6 +24,23 @@
 # DCU Academic Integrity and Plagiarism Policy (available at
 # http://www.dcu.ie/registry/examinations/index.shtml).
 
+# Build instructions:
+#   make
+#
+#   - myshell binary will be in ./bin
+#
+# Other targets:
+#   make clean - remove build files
+#   make watch - recompile if files change
+#
+# run the following if you want debug symbols and runtime logging:
+#   debug=1 make
+#
+# *Note* once compiled to recompile you will need to run:
+#   make clean all
+#
+#   - otherwise make will think there is "Nothing to do"
+
 .POSIX:
 .SUFFIXES:
 

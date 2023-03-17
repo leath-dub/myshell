@@ -46,8 +46,9 @@ int setenv(const char *name, const char *value, int overwrite);
 
 extern char **environ;
 
+#include <linux/limits.h>
 /* from main.c */
-extern char *path_to_shell;
+extern char path_to_shell[PATH_MAX];
 
 /* Token map is used to map patterns to functions
  * token    token_l    proccess */
@@ -292,7 +293,7 @@ runcmd(struct cmd *c)
         if (bin_isset_flag(c->flags, REDRO)) dup2(c->fdout, STDOUT_FILENO);
 
         /* set parent=<path to shell executable> */
-        setenv("parent", path_to_shell, 0);
+        // setenv("parent", path_to_shell, 0);
 
         /* @ref https://man7.org/linux/man-pages/man3/exec.3.html */
         execvp(c->argv[0], c->argv);

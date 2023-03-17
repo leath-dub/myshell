@@ -29,6 +29,9 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 #include <signal.h>
 #include <stdlib.h>
 #include <aio.h>
+#include <sys/types.h>
+#include <linux/limits.h>
+#include <unistd.h>
 
 /* because we are using ansi C, setenv is platform dependent
  * change this to your platform
@@ -36,6 +39,9 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 int setenv(const char *name, const char *value, int overwrite);
 /* likewise for kill function */
 int kill(pid_t pid, int sig);
+/* likewise for readlink */
+ssize_t readlink(const char *restrict pathname, char *restrict buf, size_t bufsiz);
+
 
 #include "parser.h"
 #include "lib.h"
@@ -68,7 +74,7 @@ int shell();
 static int mode;
 static FILE *stream;
 static struct cmd *cmd;
-char *path_to_shell;
+char path_to_shell[PATH_MAX];
 
 /**
  * Main - entry point, sets environment and 
@@ -78,7 +84,11 @@ char *path_to_shell;
 int
 main(int argc, char **argv)
 {
-    path_to_shell = argv[0];
+    ssize_t bytes_written;
+
+    /* @ref https://stackoverflow.com/questions/933850/how-do-i-find-the-location-of-the-executable-in-c */
+    bytes_written = readlink("/proc/self/exe", path_to_shell, PATH_MAX);
+    path_to_shell[bytes_written] = '\0';
 
     /* @ref https://man7.org/linux/man-pages/man3/setenv.3.html */
     setenv("shell", path_to_shell, 0);

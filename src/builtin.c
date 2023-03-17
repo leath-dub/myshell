@@ -51,7 +51,7 @@ int dprintf(int fd, const char *restrict format, ...);
 #include "manual.h"
 
 extern char **environ;
-extern char *path_to_shell;
+extern char path_to_shell[PATH_MAX];
 
 builtin builtins[] = {
     {"cd", builtin_cd},

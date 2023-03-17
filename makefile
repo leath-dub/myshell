@@ -70,7 +70,7 @@ bin:
 # manual copy hook, uses xxd to copy manual into char buf in manual.h
 # @ref https://linux.die.net/man/1/xxd
 manual:
-	xxd -i ./manual/README.md > ./src/manual.h
+	xxd -i ./manual/readme.md > ./src/manual.h
 
 watch:
 	echo $(src) $(headers) makefile | tr ' ' '\n' | entr make clean all

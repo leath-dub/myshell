@@ -295,7 +295,7 @@ builtin_help(struct cmd *cmd)
         exit(1); /* child exits */
     } else {
         close(manual_reader); /* child needs reader */
-        write(manual_writer, __manual_README_md, __manual_README_md_len);
+        write(manual_writer, __manual_readme_md, __manual_readme_md_len);
         close(manual_writer);
 
         cmd->pid = pid;

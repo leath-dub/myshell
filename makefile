@@ -56,7 +56,7 @@ headers = src/parser.h src/token.h src/command.h src/lib.h src/prompt.h src/buil
 # functions (if you have issues on your platform open an issue)
 cflags = $(INCS) -Wall -pedantic -std=c99
 ldflags = -lc
-optimize = -O3
+optimize = -O2
 
 ifdef debug
 optimize = -Og

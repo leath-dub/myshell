@@ -296,7 +296,6 @@ runcmd(struct cmd *c)
         setenv("parent", path_to_shell, 0);
 
         /* @ref https://man7.org/linux/man-pages/man3/exec.3.html */
-        printf("child\n");
         execvp(c->argv[0], c->argv);
         perror(c->argv[0]);
         cleancmd(c); /* cleanup as exec does not replace proccess */

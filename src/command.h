@@ -33,12 +33,6 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 #ifndef COMMAND_H
 #define COMMAND_H
 
-/*
- * parseargs -> parse slice to argument vector
- * getrhs -> parse slice to next special char or newline
- */
-
-
 /* Modes that define whether getcmd treats input from user, or raw */
 #define CMDBATCH 0x1
 #define CMDINTER 0x2 // interactive mode draws a prompt
@@ -48,19 +42,6 @@ http://www.dcu.ie/registry/examinations/index.shtml).
 #define BACK 0x2
 #define REDRI 0x4
 #define REDRO 0x8
-
-/*
-struct cmd {
-    uint8_t flags;
-    char *fsin; // TODO change thes to be FILE *
-    char *fsout;
-    char *modein;
-    char *modeout;
-    int argc;
-    char **argv;
-};
-*/
-
 
 struct cmd {
     uint8_t flags;

@@ -296,8 +296,10 @@ runcmd(struct cmd *c)
         setenv("parent", path_to_shell, 0);
 
         /* @ref https://man7.org/linux/man-pages/man3/exec.3.html */
+        printf("child\n");
         execvp(c->argv[0], c->argv);
         perror(c->argv[0]);
+        cleancmd(c); /* cleanup as exec does not replace proccess */
         exit(127); /* child exits */
         /* posix standard sais 127 is used when command is not found
          * @ref 2.8.2 Exit Status for Commands

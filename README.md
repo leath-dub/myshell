@@ -1,18 +1,22 @@
 # CA216 Operating Systems: myshell
 
-## Introduction
+Myshell is a simple shell implemenation, see `manual/readme.md` for more details
 
-This is the starter repository for the _ca216 Operating Systems_ project entitled `myshell` and which you must complete individually.
+## Build
+```
+make
+```
+This will put the `myshell` binary in ./bin
 
-## What you need to do
+you can also run
+```
+make clean
+```
+to remove build files
 
+```
+make watch
+```
+to hot rebuild on file changes (this depends on [entr](https://github.com/eradman/entr) program)
 
-You should follow the instructions below:
-
-1. fork (do not clone) this repository.  Once you have forked it, make your own repository private and add both me (Graham Healy - @healygr) and Wandri Jooste (@joostew2) as "maintainer".
-2. add all your source files to the `src` directory.
-3. Add your files relating to the manual/help command to the `manual` directory.
-4. Your `makefile` should build the binary and place it in the `bin` directory.
-
-## Other notes
-There are supporting exercises to help you with the project.  You will find them all under  [Lab04/05 on the Loop CA216 Site](https://loop.dcu.ie/mod/book/view.php?id=2054177).  Use Git regularly and commit versions of your code often.
+For debug symbols and runtime logging prefix `make` commands with `debug=1` (e.g. `debug=1 make`)
